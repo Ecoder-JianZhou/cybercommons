@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#generate key and certificate
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /sslnginx/keys/selfsigned.key -out /sslnginx/keys/selfsigned.crt -subj "/C=US/ST=Colorado/L=Boulder/O=University of Colorado/CN=localhost"
+
+#generate dhparam
+openssl dhparam -out /ssl/nginx/keys/dhparam.pem 2048

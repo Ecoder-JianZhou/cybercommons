@@ -1,0 +1,88 @@
+server {
+    listen       80;
+    server_name  ${NGINX_HOST};
+
+    server_tokens off;
+
+    location / {
+        limit_except GET HEAD POST { deny all; }
+        return 302 https://$server_name$request_uri;
+    }
+    #error_page  404              /404.html;
+
+    location /static {
+        limit_except GET HEAD POST { deny all; }
+        root   /usr/share/nginx/html;
+        autoindex off;
+    }
+
+    # redirect server error pages to the static page /50x.html
+    #
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+
+    location ~ /.well-known/acme-challenge/ {
+        root /usr/share/nginx/html;
+    }
+
+}
+server {
+    listen      443 ssl default_server;
+    server_name ${NGINX_HOST};
+
+    server_tokens off;
+
+    ssl_certificate /etc/letsencrypt/live/${NGINX_HOST}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${NGINX_HOST}/privkey.pem;
+
+    ssl_buffer_size 8k;
+
+    ssl_dhparam /etc/ssl/certs/dhparam-2048.pem;
+
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+
+    ssl_ciphers ECDH+AESGCM:ECDH+AES256:ECDH+AES128:DH+3DES:!ADH:!AECDH:!MD5;
+
+    ssl_ecdh_curve secp384r1;
+    ssl_session_tickets off;
+
+    # OCSP stapling
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    resolver 8.8.8.8;
+    
+    location / {
+        limit_except GET HEAD POST { deny all; }
+        root   /usr/share/nginx/html;
+        autoindex on;
+        add_header  Cache-Control private;
+    }
+
+    location /static {
+        limit_except GET HEAD POST { deny all; }
+        root   /usr/share/nginx/html;
+        autoindex off;
+    }
+
+    location ~ /.well-known/acme-challenge/ {
+        limit_except GET HEAD POST { deny all; }
+        return 302 http://$server_name$request_uri;
+    }
+
+    # proxy the django api
+    #
+    location /api/ {
+        limit_except GET HEAD POST { deny all; }
+        add_header 'Access-Control-Allow-Origin' '*';
+        proxy_set_header Host $http_host;
+        # The following two lines are needed to access through https
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto 'https';
+        proxy_pass http://cybercom_api:8080/ ;
+    }
+
+}
+

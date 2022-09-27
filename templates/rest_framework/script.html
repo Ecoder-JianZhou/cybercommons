@@ -1,0 +1,37 @@
+<script>
+  //This file contains the unminified javascript that is part of the cybercommons block within api.html
+  // This file is not used and only here for reference. 
+  if ($(document).find("title").text().substring(0, 8) === "Run Task") {
+    $(".response-info").hide()
+    setTimeout(function () {
+      fdata = {}
+      elements = $(".str")
+      //Create data object
+      $.each(elements, function (idx, data) {
+        if (idx % 2 == 0) {
+          count = 1;
+          if (data.innerText.replace(/"/g, "") == "task_url") {
+            count = 2
+          };
+          fdata[data.innerText.replace(/"/g, "")] = elements[idx + count].innerText.replace(/"/g, "")
+        }
+      });
+      //Set task table
+      if ('task_url' in fdata) {
+        delete fdata[fdata.task_url];
+        exampledata = { queue: "celery", args: [], kwargs: {}, tags: [] };
+        template = '<pre class="prettyprint"><div class="panel panel-default" style="margin:10px;"><table class="table table-bordered table-wrap"><tr><td style="width:120px;">Task Name</td><td><span class="table-min-height nocode lit">'
+        template = template + fdata.task_name + '</span></td></tr><tr><td>Docstring</td><td><span class="nocode lit">'
+        template = template + fdata.task_docstring + '</span></td></tr><tr><td>Curl Example</td><td><span class="nocode lit">curl -X POST --data '
+        template = template + "'" + JSON.stringify(exampledata) + "' " + fdata.task_url
+        template = template + ' -H ' + "'Content-Type:application/json' -H 'Authorization: Token "
+        template = template + fdata.auth_token + "' </span></td></tr></table></div></pre>"
+        $(".response-info").empty();
+        $(".response-info").html(template);
+        $("#id__content").text(JSON.stringify(exampledata, null, 4))
+      }
+      $(".response-info").show();
+
+    }, 300);
+  }
+</script>

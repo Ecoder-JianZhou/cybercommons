@@ -1,0 +1,13 @@
+.col-md-6 {
+    height: 295px;
+    overflow-y: scroll;
+    padding: 0px 0px;
+}
+
+#log_o{
+    padding: 0px 0px;
+}
+
+table {
+    width:100%;
+}

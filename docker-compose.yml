@@ -1,0 +1,113 @@
+version: "3.7"
+services:
+  local_fortran_example:
+    image: local_fortran_example
+    volumes:
+      - ./web/data:/data
+    build:
+        context: dc_config/images/local_fortran_example
+        args: 
+          - CELERY_SSH_USER
+    env_file:
+      - dc_config/cybercom_config.env
+      - dc_config/secrets.env
+
+  cybercom_nginx:
+    image: nginx:${NGINX_VERSION}
+    restart: unless-stopped
+    expose:
+      - 80
+      - 443
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - cybercom_api
+    volumes:
+      - ./dc_config/nginx/templates/${NGINX_TEMPLATE:-default}:/etc/nginx/templates/
+      - ./web:/usr/share/nginx/html
+      - ./dc_config/ssl/nginx/letsencrypt/etc/live/${NGINX_HOST}/fullchain.pem:/etc/letsencrypt/live/${NGINX_HOST}/fullchain.pem
+      - ./dc_config/ssl/backend/dhparam-2048.pem:/etc/ssl/certs/dhparam-2048.pem
+      - ./dc_config/ssl/nginx/letsencrypt/etc/live/${NGINX_HOST}/privkey.pem:/etc/letsencrypt/live/${NGINX_HOST}/privkey.pem
+    env_file:
+      - dc_config/cybercom_config.env
+  cybercom_mongo:
+    image: mongo:${MONGO_VERSION}
+    command: --tlsMode requireTLS --tlsCertificateKeyFile /ssl/server/mongodb.pem --tlsCAFile /ssl/testca/cacert.pem --auth
+    restart: unless-stopped
+    env_file:
+      - dc_config/cybercom_config.env
+      - dc_config/secrets.env
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodata:/data/db
+      - ./dc_config/ssl/backend:/ssl
+  cybercom_rabbitmq:
+    image: rabbitmq:${RABBITMQ_VERSION}
+    restart: unless-stopped
+    env_file:
+      - dc_config/cybercom_config.env
+      - dc_config/secrets.env
+    volumes:
+      - ./dc_config/ssl/backend:/ssl
+    expose:
+      - 5671
+    ports:
+      - 5671:5671
+  cybercom_memcache:
+    image: memcached:${MEMCACHED_VERSION}
+    restart: unless-stopped
+    env_file:
+      - dc_config/cybercom_config.env
+    expose:
+      - 11211
+  cybercom_celery:
+    image: celeryapp
+    restart: unless-stopped
+    build: 
+      context: dc_config/images/celery
+      args:
+        - DOCKER_PYTHON_VERSION
+    volumes:
+      - ./dc_config/ssl/backend:/ssl
+    env_file:
+      - dc_config/cybercom_config.env
+      - dc_config/secrets.env
+    depends_on:
+      - cybercom_mongo
+      - cybercom_rabbitmq
+      - local_fortran_example
+  cybercom_api:
+    deploy:
+      resources:
+        limits:
+          cpus: ${API_CPUS}
+    image: api:${API_VERSION}
+    restart: unless-stopped
+    user: "${UID}:${GID}"
+    build:
+      context: .
+      args:
+        UNAME: apiuser
+        UID: "${UID}"
+        GID: "${GID}"
+        DOCKER_PYTHON_VERSION:
+    env_file:
+      - dc_config/cybercom_config.env
+      - dc_config/secrets.env
+    volumes:
+      - ./dc_config/ssl/backend:/ssl
+      - ./db.sqlite3:/app/db.sqlite3
+      - ./web/static:/app/static
+    expose:
+      - 8080
+    depends_on:
+      - cybercom_mongo
+      - cybercom_rabbitmq
+volumes:
+  mongodata:
+    name: "${MONGO_DOCKER_VOLUME_PREFIX}_mongo"
+    external: true

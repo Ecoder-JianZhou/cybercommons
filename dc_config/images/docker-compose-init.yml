@@ -1,0 +1,24 @@
+version: "3.7"
+services:
+  cybercom_mongo_init:
+    image: mongo:${MONGO_VERSION}
+    command: /addmongouser
+    env_file:
+      - ../cybercom_config.env
+      - ../secrets.env
+    volumes:
+      - ./mongoinit/addmongouser:/addmongouser
+      - mongo:/data/db
+  cybercom_openssl_init:
+    image: cybercom/openssl
+    user: "${UID}:${GID}"
+    command: /ssl/generate
+    build: ./openssl
+    env_file:
+      - ../cybercom_config.env
+      - ../secrets.env
+    volumes:
+      - ../ssl/backend:/ssl
+volumes:
+  mongo:
+    name: "${MONGO_DOCKER_VOLUME_PREFIX}_mongo"

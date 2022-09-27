@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  cybercom_mongo_init:
+    image: mongo:${MONGO_VERSION}
+    command: /addmongouser
+    env_file:
+      - ../../cybercom_config.env
+    volumes:
+      - ./addmongouser:/addmongouser
+      - cc_mongo:/data/db
+volumes:
+  cc_mongo:

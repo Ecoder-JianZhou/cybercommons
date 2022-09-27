@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# This script is used to generate keys for the message broker and clients
+# Rerun genSSLKeys to apply changes
+
+rootpath=/ssl
+testca=$rootpath/testca
+server=$rootpath/server
+client=$rootpath/client
+certpath=$testca/certs
+privpath=$testca/private
+
+
+
+if [ -d $testca ]; then rm -rf $testca; fi
+if [ -d $server ]; then rm -rf $server; fi
+if [ -d $client ]; then rm -rf $client; fi
+
+mkdir $testca $server $client $certpath $privpath
+touch $testca/index.txt
+echo 01 > $testca/serial
+
+openssl req -x509 -config $rootpath/ca.conf -newkey rsa:2048 -days $CA_EXPIRE \
+  -out $testca/cacert.pem -outform PEM -subj /CN=cybercommonsCA/ -nodes
+openssl x509 -in $testca/cacert.pem -out $testca/cacert.cer -outform DER
+
+# Create Server certs
+openssl genrsa -out $server/key.pem 2048
+openssl req -new -key $server/key.pem -out $server/req.pem -outform PEM \
+  -subj /CN=localhost/O=server/ -nodes
+openssl ca -config $rootpath/ca.conf -in $server/req.pem -out \
+  $server/cert.pem -notext -batch -extensions server_ca_extensions
+openssl pkcs12 -export -out $server/keycert.p12 -in $server/cert.pem \
+  -inkey $server/key.pem -passout pass:$KEY_SECRET
+
+# Create client certs
+openssl genrsa -out $client/key.pem 2048
+openssl req -new -key $client/key.pem -out $client/req.pem -outform PEM \
+  -subj /CN=localhost/O=client/ -nodes
+openssl ca -config $rootpath/ca.conf -in $client/req.pem -out $client/cert.pem \
+  -notext -batch -extensions client_ca_extensions
+openssl pkcs12 -export -out $client/keycert.p12 -in $client/cert.pem \
+  -inkey $client/key.pem -passout pass:$KEY_SECRET
+
+# Concat key and cert for mongodb
+cat $server/key.pem $server/cert.pem > $server/mongodb.pem
+cat $client/key.pem $client/cert.pem > $client/mongodb.pem
+
+# Insure key.pem files are readable
+chmod 644 $server/key.pem
+chmod 644 $client/key.pem
+
+# Create DH param private key using openssl for letsencrypt.
+openssl dhparam -out $rootpath/dhparam-2048.pem 2048

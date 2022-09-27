@@ -1,0 +1,3 @@
+The legacy code in this folder is keys/,generate(shell script). These two here were previous used to generate self-signed certificates , so that a researcher or person who want to setup cybercommons on his LAN network can get it secured using this code. 
+
+As of now , this code is not cleaned up because in future we are in a plan to add a configuration or a way so that self-signed certification can be setup alongside TLS.  
