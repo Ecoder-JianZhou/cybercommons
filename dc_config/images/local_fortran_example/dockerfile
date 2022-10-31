@@ -27,12 +27,13 @@ WORKDIR /home/$CELERY_SSH_USER
 USER $CELERY_SSH_USER
 
 # COPY test.f90 .
-COPY test.f90 .
-RUN gfortran -o test test.f90
+# COPY test.f90 .
+# RUN gfortran -o test test.f90
 
 RUN mkdir models
 COPY ./models ./models
 COPY run.py .
+RUN gfortran -o test ./models/teco_spruce/test.f90 
 
 RUN mkdir input
 COPY ./input ./input
