@@ -55,3 +55,4 @@ if __name__=="__main__":
     else:
         dictSettings = readYml(settingFile)
     print(settingFile)
+    return "run"
