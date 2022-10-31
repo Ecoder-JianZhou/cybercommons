@@ -1,5 +1,6 @@
 import os
 import ssl
+from datetime import timedelta
 
 # Refer to Celery's configuration documentation for details on these settings.
 # https://docs.celeryproject.org/en/stable/userguide/configuration.html
@@ -35,3 +36,18 @@ mongodb_backend_settings = {
 }
 
 imports = tuple(os.environ.get('CELERY_IMPORTS').split(','))
+
+# add by Jian: to set the schedule task to run forecasting.
+beat_schedule = {
+    # 名字随意命名
+    'test-30-seconds': {
+        # 执行tasks1下的test_celery函数
+        'task': 'ecopadq.tasks.tasks.jian',
+        # 每隔2秒执行一次
+        # 'schedule': 1.0,
+        # 'schedule': crontab(minute="*/1"),
+        'schedule': timedelta(seconds=30),
+        # 传递参数
+        'args': (1,2)
+    },
+}

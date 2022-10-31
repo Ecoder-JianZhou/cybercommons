@@ -1,10 +1,20 @@
 From ubuntu:20.04
+From r-base
 ARG CELERY_SSH_USER 
 
 RUN apt-get update && \
 	apt-get install -y  openssh-server \
 	gfortran \
-	vim
+	vim 
+
+RUN Rscript -e "install.packages('ggplot2',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
+RUN Rscript -e "install.packages('readxl',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
+RUN Rscript -e "install.packages('zoo',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
+RUN Rscript -e "install.packages('rstudioapi',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
+RUN Rscript -e "install.packages('magrittr',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
+RUN Rscript -e "install.packages('reshape',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
+RUN Rscript -e "install.packages('gridExtra',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
+RUN Rscript -e "install.packages('stringr',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
 
 RUN mkdir /var/run/sshd 
 
@@ -16,12 +26,21 @@ EXPOSE 22
 WORKDIR /home/$CELERY_SSH_USER
 USER $CELERY_SSH_USER
 
+# COPY test.f90 .
 COPY test.f90 .
 RUN gfortran -o test test.f90
+
+RUN mkdir input
+COPY ./input ./input
+
+RUN mkdir output
+COPY ./output ./output
+
+COPY test_R.r .
 
 USER root
 
 COPY start_sshd.sh /root/ 
 COPY entrypoint.sh entrypoint.sh
 CMD ["/bin/sh", "entrypoint.sh"]
-
+# CMD ["/input/SPRUCE_pars.txt", "/input/SPRUCE_forcing.txt", "/input/SPRUCE_obs.txt", "/source/output/", "0"]

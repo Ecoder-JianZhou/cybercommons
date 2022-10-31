@@ -1,125 +1,105 @@
 <html>
-  <head lang="en">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta charset="utf-8" />
+<head lang="en">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
     <title>EcoPAD</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Bootstrap Template" />
-    <meta name="Mark Stacy" content="OU Libraries Informatics" />
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <!--
-    <link
-      rel="stylesheet"
-      href="bower_components/boostrap_style/flatly/bootstrap.min.css"
-    />
-      <link rel="stylesheet" href="style.css" />
-      <link rel="stylesheet" href="demo.css" />
-    -->
-      <link rel="stylesheet" href="table.css" />
-  </head>
-  <body style="padding: 5px; background-color: rgba(255, 255, 255, 0.15)">
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-          <button
-            type="button"
-            class="navbar-toggle collapsed"
-            data-toggle="collapse"
-            data-target="#bs-example-navbar-collapse-1"
-          >
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#"
-            >Platform for ecological forecasting</a
-          >
-        </div>
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <span>
-            <a class="navbar-brand" rel=" nofollow" href="/"
-              >Cybercommons Base
-            </a>
-          </span>
-          <span>
-            <a class="navbar-brand" rel=" nofollow" href="/api/">API </a>
-          </span>
-          <ul class="nav navbar-nav navbar-right" id="user"></ul>
-        </div>
-        <!-- /.navbar-collapse -->
-      </div>
-      <!-- /.container-fluid -->
-    </nav>
-    <!-- Start Ouside tab -->
-    <div
-      role="tabpanel"
-      class="tabbable"
-      style="margin-top: 1px; margin-left: 1px"
-    >
-      <ul id="myTab_out" class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active">
-          <a
-            href="#homedesc"
-            aria-controls="homedesc"
-            role="tab"
-            data-toggle="tab"
-            >EcoPAD</a
-          >
-        </li>
-        <!--
-        <li role="presentation">
-          <a
-            id="image_link"
-            href="#forecast_images"
-            aria-controls="imageflow"
-            role="tab"
-            data-toggle="tab"
-            >SPRUCE Forecasting</a
-          >
-        </li>
-        -->
-        <li role="presentation">
-          <a
-            id="image_link"
-            href="#forecast_images_sev"
-            aria-controls="imageflow"
-            role="tab"
-            data-toggle="tab"
-            >SEV Forecasting</a
-          >
-        </li>
-      </ul>
-      <div id="myTabContent1" class="tab-content" style="margin-bottom: 0px">
-      </div>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Bootstrap Template">
+    <meta name="Mark Stacy" content="OU Libraries Informatics">
+    <link rel="stylesheet" href="bower_components/boostrap_style/flatly/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <!-- add by Jian from Markus web -->
+    <link rel="stylesheet" href="table.css" /> 
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
 
-        <div role="tabpanel" class="tab-pane fade in" id="forecast_images_sev">
-          <div style="width: 75%" align="left">
-            <h2>End to End Demo</h2>
-            <p>
-            This is a minimal example for the interaction of the various components of  EcoPAD.
-            The components are: 
-            <ul>
-              <li>The frontend (the webpage you are looking at) - consisting of
-              html, javascript and bootstrap (a CSS,javascript framework).
-              <li> The cybercommons framework providing a RESTful API by means of 
-              a microservice framework (django, celery, mongodb, nginx) 
-              </li>
-              <li>A task repository, containing python code to be consumed by the celery
-              worker connected to the above mentioned celery application</li>
-              <li> A docker container for the actual 
-                computation which is implemented in Fortran. 
-                This container receives commands from the celery worker.
-              </li>
-            </ul>
-            </p>
-          </div>
+
+</head>
+<body style="padding:5px;background-color: rgba(255,255,255,0.15);">
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Ecological Platform for Assimilation of Data</a>
+    </div>
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+              <a id="user" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown<span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a id="aprofile" href="#">User Profile</a></li>
+                <li><a id="alogout" href="#">Log out</a></li>
+                <!--<li class="divider"></li>-->
+              </ul>
+            </li>
+          </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+<!-- Start Ouside tab -->
+<div role="tabpanel" class="tabbable" style="margin-top:1px;margin-left:1px;">
+    <ul id='myTab_out' class="nav nav-tabs  " role="tablist">
+        <li role="presentation" class="active"><a href="#homedesc" aria-controls="homedesc" role="tab" data-toggle="tab">EcoPAD</a></li>
+        <li role="presentation"><a id="image_link" href="#forecast_images" aria-controls="imageflow" role="tab" data-toggle="tab">SPRUCE Forecasting</a></li>
+        <!-- change by Jian to stop the custom workflow -->
+        <li role="presentation"><a id="workflow_link" href="#workflow" aria-controls="workflow" role="tab" data-toggle="tab">Custom Workflow</a></li>  
+
+    </ul>
+    <div id="myTabContent1" class="tab-content" style="margin-bottom:0px">
+        <div role="tabpanel" class="tab-pane fade in active" id="homedesc">
+            <h2>EcoPAD Description</h2>
+        </div>
+       <!-- Forecast images div--> 
+       <div role="tabpanel" class="tab-pane fade in " id="forecast_images">
+          
+          <!-- add by Jian from the code of Markus to test the run of model -->
+           
+          <div >
+            <label for="model_name">Model Name:</label>
+            <div >
+              <select id="model_name" >
+                <option style='display: none'></option>
+                <option value="teco_spruce_v2">teco_spruce_v2</option>
+              </select>			  
+            </div> 
+           </div>
+
+           <div >
+            <label for="site">site:</label>
+            <div >
+              <select id="site_name" >
+                <option style='display: none'></option>
+                <option value="SPRUCE">SPRUCE</option>
+              </select>			  
+            </div>
+          </div> 
+
+          <div style="padding-bottom: 15px;">
+            <label for="function">mode:</label>
+            <div >
+              <select id="function" >
+                <option style='display: none'></option>
+                <option value="simulation">simulation</option>
+                <option value="data_assimilation">data assimilation</option>
+                <option value="forecast">forecast</option>
+                <option value="pull_data">pull data</option>
+                <option value="matrix_models">matrix models</option>
+              </select>			  
+            </div>
+          </div> 
+
           <div class="container-fluid">
 	        	<div class="row">
 	        		<form class "form-inline" action="demo_new.html" method="post" id="signup">
-	        		  <div class="form-group" id=afg>
+	        		  <!-- <div class="form-group" id=afg>
 	        		  	<label for="amplitude">Amplitude:</label>
 	        		  	<input class="form-control"type="number" id="amplitude" name="amplitude" value=2.0 min="0.0" step ="0.1" required/>
 	        		 	  <span class 'help-block'> a positive number </span>
@@ -128,10 +108,9 @@
 	        		  	<label for="phase">Phase:</label>
 	        		  	<input class="form-control" type="number"  id="phase" name="phase" step ="0.1" min="0.0" value="0.0" required/>
 	        		 	  <span class 'help-block'> a positive number </span>
-                  <!--
-                  -->
-	        		  </div>		
-	        		  <button type="submit" class="btn btn-default">send to API </button>
+	        		  </div>		 -->
+                
+	        		  <button type="submit" class="btn btn-default">Test to run TECO (send to API) </button>
           		  <p id="status" />
               </form>
 	        	</div>
@@ -145,70 +124,174 @@
                 </div>
             </div>
           </div>
-          <!--
-          <div class="col-md-6" style="padding-left: 0px">
-            <select id="forecast_select_sev" class="form-control input-sm">
-              <option selected="selected" value="EM1_FORECAST_380_0">
-                Ambient [CO2]: 380, Warming treatment: +0 &#8451;
-              </option>
-              <option value="EM1_FORECAST_380_2.25">
-                Ambient [CO2]: 380, Warming treatment: +2.25 &#8451;
-              </option>
-              <option value="EM1_FORECAST_380_4.5">
-                Ambient [CO2]: 380, Warming treatment: +4.5 &#8451;
-              </option>
-              <option value="EM1_FORECAST_380_6.75">
-                Ambient [CO2]: 380, Warming treatment: +6.75 &#8451;
-              </option>
-              <option value="EM1_FORECAST_380_9">
-                Ambient [CO2]: 380, Warming treatment: +9 &#8451;
-              </option>
-              <option value="EM1_FORECAST_900_0">
-                Elevated [CO2]: 900, Warming treatment: +0 &#8451;
-              </option>
-              <option value="EM1_FORECAST_900_2.25">
-                Elevated [CO2]: 900, Warming treatment: +2.25 &#8451;
-              </option>
-              <option value="EM1_FORECAST_900_4.5">
-                Elevated [CO2]: 900, Warming treatment: +4.5 &#8451;
-              </option>
-              <option value="EM1_FORECAST_900_6.75">
-                Elevated [CO2]: 900, Warming treatment: +6.75 &#8451;
-              </option>
-              <option value="EM1_FORECAST_900_9">
-                Elevated [CO2]: 900, Warming treatment: +9 &#8451;
-              </option>
-            </select>
+
+          <hr/>
+          <!-- end of add by Jian -->
+    
+          <div style="width:75%" align="left"> 
+            <h2>Ecological forecasting at SPRUCE (weekly)</h2>
+            <p>Forecasting of GPP and ER are automated at weekly timescale. Mean trajectory and confidence interval were derived from 100 stochastic simulations. In each simulation, parameters were randomly chosen from previous (or default) Data Assimilation task. Forcing variables were linked to SPRUCE ftp site where updated hourly. Data assimilation is run irregularly, whenever observation data is compiled manually, then update the parameters.</p>
           </div>
-          -->
-          <div id="two_images_sev" style="clear: both"></div>
+          <div >
+            <div>
+              <label id="forecast_time">Lastest forecasting time:</label>
+            </div>
+            <label for="forecast_var">Variable:</label>
+            <div >
+              <select id="forecast_var" onchange="showForecastResults()">
+                <!-- <option style='display: none'></option> -->
+                <option value="gpp">GPP</option>
+                <option value="er">ER</option>
+              </select>			  
+            </div> 
+           </div>
+          <div class="col-md-6" style="padding-left:0px;">
+            <label for="forecast_select">Experiment:</label>
+            <select id="forecast_select" class="form-control input-sm " onchange="showForecastResults()">
+              <!-- <option selected="selected" value="EM1_FORECAST_380_0">Ambient [CO2]: 380, Warming treatment: +0 &#8451;</option> -->
+              <!-- <option style='display: none'></option> -->
+              <option value="EM1_FORECAST_380_0">Ambient [CO2]: 380, Warming treatment: +0 &#8451;</option>
+              <option value="EM1_FORECAST_380_2.25">Ambient [CO2]: 380, Warming treatment: +2.25 &#8451;</option>
+              <option value="EM1_FORECAST_380_4.5">Ambient [CO2]: 380, Warming treatment: +4.5 &#8451;</option>
+              <option value="EM1_FORECAST_380_6.75">Ambient [CO2]: 380, Warming treatment: +6.75 &#8451;</option>
+              <option value="EM1_FORECAST_380_9">Ambient [CO2]: 380, Warming treatment: +9 &#8451;</option>
+              <option value="EM1_FORECAST_900_0">Elevated [CO2]: 900, Warming treatment: +0 &#8451;</option>
+              <option value="EM1_FORECAST_900_2.25">Elevated [CO2]: 900, Warming treatment: +2.25 &#8451;</option>
+              <option value="EM1_FORECAST_900_4.5">Elevated [CO2]: 900, Warming treatment: +4.5 &#8451;</option>
+              <option value="EM1_FORECAST_900_6.75">Elevated [CO2]: 900, Warming treatment: +6.75 &#8451;</option>
+              <option value="EM1_FORECAST_900_9">Elevated [CO2]: 900, Warming treatment: +9 &#8451;</option>
+            </select>			  
+          </div> 
+				<!-- <div id="two_images" style="clear:both;">  -->
+          <div class="col-md-6" id='plotDiv1'>
+            <!-- Plotly chart will be drawn inside this DIV -->
+          </div>
+        <!-- </div> -->
         </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="workflow">
+<!-- Start inside tab -->
+<div role="tabpanel" class="tabbable" >
+    <ul id='myTab' class="nav nav-tabs  " role="tablist">
+        <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">EcoPAD Workflow</a></li>
+        <li role="presentation"><a href="#tasks" aria-controls="tasks" role="tab" data-toggle="tab">Task History</a></li>
+        <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">User Profile</a></li>
+    </ul>
+    <div id="myTabContent" class="tab-content" style="margin-bottom:0px">
+        <div role="tabpanel" class="tab-pane fade in active" id="home">
+            <h2>Task Workflow</h2>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="tasks">
+            <h2>Task History</h2>
+            <h4 id="task_count"></h4>
+            <table class="table table-striped table-bordered table-condensed table-hover" id='resulttable'>
+              <tr>
+                  <th>Task Name</th>
+                  <th>Timestamp</th>
+                  <th>Metadata Tags</th>
+                  <!--<th>Result</th>-->
+              </tr>
+            <tbody id='result_tbody'>
+              </tbody>
+            </table>
+            <nav>
+            <ul class="pager">
+                <li id="li_prevlink" class="disabled"><a id="prevlink" href="#"><span aria-hidden="true">&larr;</span> Previous</a></li>
+                <li id="li_nextlink" ><a id="nextlink" href="#">Next <span aria-hidden="true">&rarr;</span></a></li>
+            </ul>
+            </nav>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="profile">
+            
+        </div>
+    </div>
+</div> <!-- End inside tab -->
+
+</div></div></div> <!-- End outside tab -->
+
+<hr>
+<footer>
+    <p>&copy; Copyright</p>
+</footer>
+<!-- Task Result Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title" id="myModalLabel">Task Result</h3>
+      </div>
+      <div class="modal-body">
+        <pre id="myModalbody"></pre> 
+      </div>
+      <div class="modal-footer">
       </div>
     </div>
-    <!-- End outside tab -->
+  </div>
+</div>
+<!-- Task Result End Modal -->
+<!-- Initial Parameters  Modal -->
+<div class="modal fade" id="myParameterModal" tabindex="-1" role="dialog" aria-labelledby="myPModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" style="width:80%">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title" id="myPModalLabel">Initial Parameters</h3>
+      </div>
+      <div class="modal-body">
+        <div id="myParameterModalbody"></div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Task Parameter Modal -->
+<!-- Initial DA selection Modal -->
+<div class="modal fade" id="myDAModal" tabindex="-1" role="dialog" aria-labelledby="myDAModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title" id="myDAModalLabel">Data Assimilation Parameter Estimate Selection</h3>
+      </div>
+      <div class="modal-body">
+        <div id="myDAModalbody">
+            <a id="resetDA" href="#">Set Data Assimilation to Default</a>
+            <hr>
+            <table class="table table-striped table-bordered table-condensed " id='da_resulttable'>
+              <tr>
+                  <th>Select</th>
+                  <th>Task Name</th>
+                  <th>Timestamp</th>
+                  <th>Metadata Tags</th>
+                  <!--<th>Result</th>-->
+              </tr>
+                <tbody id='da_result_tbody'>
+                </tbody>
+            </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+<!-- DA End Modal -->
 
-    <hr />
-    <footer>
-      <p>&copy; Copyright</p>
-    </footer>
-  </body>
-  <!-- jQuery library -->
+</body>
+<!-- add by Jian from Markus WEBSITE -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<!-- Latest compiled JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-<!--
-  <script src="bower_components/jquery/dist/jquery.min.js"></script>
-  <script
-    type="text/javascript"
-    src="bower_components/bootstrap/dist/js/bootstrap.min.js"
-  ></script>
-  <script
-    type="text/javascript"
-    src="bower_components/handlebars/handlebars.runtime.min.js"
-  ></script>
-  -->
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <script src="demo.js"></script>
-  <!--
-  -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="demo.js"></script>
+<!-- end by Jian -->
+
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="bower_components/handlebars/handlebars.runtime.min.js"></script>
+
+<script src="api.js"></script>
+<script src="templates.js"></script>
+
 </html>

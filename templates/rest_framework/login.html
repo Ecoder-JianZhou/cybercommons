@@ -1,5 +1,43 @@
 {% extends "rest_framework/login_base.html" %}
 
+{# Override this template in your own templates directory to customize #}
 {% block branding %}
-<h2 style="margin: 0 0 20px;" class="lit">{{ my_settings.APPLICATION_TITLE }}</h2>
+    <h3 style="margin: 0 0 20px;"> {{ application_title }}  </h3>
+
+<hr>
+<h5 style="margin: 0 0 20px;">New User Request </h3>
+<div class="row-fluid">
+    <div>
+        <form action="https://www2.nau.edu/luo-lab/ecopad_register/login_step_two.php" class=" form-inline" method="post">
+                    <div class="controls">
+                        <label class="span4">First Name:</label>
+                        <input required="required" style="height: 25px" type="text" name="first_name" maxlength="100" autocapitalize="off" autocorrect="off" class="textinput textInput" id="first_name">
+                </div>
+                    <div class="controls">
+                        <label class="span4">Last Name:</label>
+                        <input required="required" style="height: 25px" type="text" name="last_name" maxlength="100" autocapitalize="off" autocorrect="off" class="textinput textInput" id="last_name">
+                </div>
+                    <div class="controls">
+                        <label class="span4">Email Address:</label>
+                        <input required="required" style="height: 25px" type="text" name="email" maxlength="100" autocapitalize="off" autocorrect="off" class="textinput textInput" id="email">
+                </div>
+                    <br>
+                    <div class="form-actions-no-box">
+                        <input type="submit" name="submit" value="Register" class="btn btn-primary" id="submit-id-submit">
+                            </div>
+                    </form>
+    </div>
+</div>
+
+<hr>
+
+<h5 style="margin: 0 0 20px;">Already have an account? Login here:</h3>
+
+
+{% endblock %}
+
+{% block style%}
+    {{ block.super }}
+    <link rel="stylesheet" href="/static/custom/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/custom/css/custom.css" type="text/css">
 {% endblock %}

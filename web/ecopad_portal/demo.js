@@ -1,51 +1,54 @@
 
-$(function () {
-  // this is the jQuery abbreviation for the function that is called at the
-  // document.ready event and is executed as soon as the document is fully loaded
-  //
-  user_url = "/api" + "/user.json/";
-  console.log(user_url);
-  // If we are logged in the following user_url will be available at the server
-  // (in the background django will check if the session cockie it sent us earlier
-  // which will be integrated by the browser into all our subsequent requests
-  // authorizes us to visit this url but the only thing we have to know is that
-  // the following ajax request will only succeed if we are logged in.
-  ul = document.getElementById("user");
-  $.getJSON(user_url, function (data) {
-    console.log("success");
-    console.log(data.username);
-    show_logout(ul);
-  }).fail(function () {
-    console.log("fail");
-    show_login(ul);
-  });
-});
+// $(function () {
+//   // this is the jQuery abbreviation for the function that is called at the
+//   // document.ready event and is executed as soon as the document is fully loaded
+//   //
+//   user_url = "/api" + "/user.json/";
+//   console.log(user_url);
+//   // If we are logged in the following user_url will be available at the server
+//   // (in the background django will check if the session cockie it sent us earlier
+//   // which will be integrated by the browser into all our subsequent requests
+//   // authorizes us to visit this url but the only thing we have to know is that
+//   // the following ajax request will only succeed if we are logged in.
+//   ul = document.getElementById("user");
+//   $.getJSON(user_url, function (data) {
+//     console.log("success");
+//     console.log(data.username);
+//     show_logout(ul);
+//   }).fail(function () {
+//     console.log("fail");
+//     show_login(ul);
+//   });
+// });
 
-//const base_url = "/ecopad_portal/index.html";
-const base_url = window.location.pathname;
-function show_login(ul) {
-  ul.innerHTML = `
-<li>
-  <a id="login" href="/api/api-auth/login/?next=${base_url}">Log in</a>
-</li>`;
-}
+// //const base_url = "/ecopad_portal/index.html";
+// const base_url = window.location.pathname;
+// function show_login(ul) {
+//   ul.innerHTML = `
+// <li>
+//   <a id="login" href="/api/api-auth/login/?next=${base_url}">Log in</a>
+// </li>`;
+// }
 
-function show_logout(ul) {
-  ul.innerHTML = `
-  <li id=user class="dropdown">
-    <a  href="#" class="dropdown-toggle" data-toggle="dropdown">
-      ecopad
-      <b class="caret"></b>
-    </a>
-    <ul class="dropdown-menu">
-      <li><a href="/api/api-auth/logout/?next=">Log out</a></li>
-    </ul>
-  </li>
-`;
-}
+// function show_logout(ul) {
+//   ul.innerHTML = `
+//   <li id=user class="dropdown">
+//     <a  href="#" class="dropdown-toggle" data-toggle="dropdown">
+//       ecopad
+//       <b class="caret"></b>
+//     </a>
+//     <ul class="dropdown-menu">
+//       <li><a href="/api/api-auth/logout/?next=">Log out</a></li>
+//     </ul>
+//   </li>
+// `;
+// }
 
+// Add by Jian to set the lastest forecast time:
+// lastTime = getTime();
+// $("#forecast_time").text(lastTime); // Jian
 
-postJSON = function(url, data, callback,fail) {
+postJSON1 = function(url, data, callback,fail) {
 	//https://api.jquery.com/jquery.ajax/
         return jQuery.ajax({
             'type': 'POST',
@@ -181,17 +184,36 @@ form.addEventListener("submit", function (event) {
   // authorizes us to visit this url but the only thing we have to know is that
   // the following ajax request will only succeed if we are logged in.
   ul = document.getElementById("user");
+  // add by Jian: get value from html ---
+    // var index = obj.selectedIndex; 
+  // var text = obj.options[index].text; 
+  var obj_modelName = document.getElementById("model_name");
+  var model_name = obj_modelName.options[obj_modelName.selectedIndex].value;
+  var obj_siteName  = document.getElementById("site_name");
+  var site_name = obj_siteName.options[obj_siteName.selectedIndex].value;
+  
+  var obj_func  = document.getElementById("function");
+  var func_name = obj_func.options[obj_func.selectedIndex].value;
+  var url = "http://localhost/api/queue/run/ecopadq.tasks.tasks.run_"+func_name+"/"
+  console.log("Running model: ", model_name)
+  console.log("Running site: ", site_name)
+  console.log("Running function: ", url)
+  // end of Jian
+
   $.getJSON(user_url, function (data) {
     console.log("success");
     console.log(data.username);
-    let amplitude = parseFloat(form.elements["amplitude"].value),
-    phase = parseFloat(form.elements["phase"].value),
-    url = "http://localhost/api/queue/run/ecopadq.tasks.tasks.test/"
-    postJSON(
+    // let amplitude = parseFloat(form.elements["amplitude"].value), // changed by Jian 
+    // phase = parseFloat(form.elements["phase"].value),  // changed by Jian
+
+    //url = "http://localhost/api/queue/run/ecopadq.tasks.tasks.run_simulation/"
+    console.log(url)
+    postJSON1(
     	url=url,
     	data={
     	  "queue": "celery",
-    	  "args": [amplitude,phase],
+    	  // "args": [amplitude,phase],
+        "args":[model_name,site_name],  // changed by Jian  to test
     	  "kwargs": {},
     	  "tags": []
     	},
@@ -199,7 +221,12 @@ form.addEventListener("submit", function (event) {
 	  		log(textStatus);
         log(`sent json data to ${url}`)
         log(`received the following result url ${data.result_url}`)
-        show_result(data.result_url);
+        if (func_name == "simulation" || func_name == "data_assimilation"){
+          show_result(data.result_url);
+        } else {
+          log(`Your running function is: ${func_name}. Successful!!!`)
+        }
+        
 	  	},
     	fail=function(){log(`failed to send data to ${url}`)}
     );
@@ -210,3 +237,122 @@ form.addEventListener("submit", function (event) {
     });
 
 });
+
+
+
+// add by Jian to plot the results of forecasting
+function showForecastResults(){
+  var exp_idx  = document.getElementById("forecast_select").selectedIndex;
+  var var_idx  = document.getElementById("forecast_var").selectedIndex;
+  // if     
+  var val      = document.getElementById("forecast_select").options[exp_idx].value;
+  var val_text = document.getElementById("forecast_select").options[exp_idx].text;
+  // if (exp_idx == 0 || var_idx ==0){
+  //   console.log("both variable and experiment need be choosed!")
+  // }else{
+  // console.log(index)
+  // console.log(val)
+  var fileForecast = "/data/show_forecast_results/lastest_forecast_results_";
+  switch(val){
+    case "EM1_FORECAST_380_0":
+      console.log(val);
+      fileForecast = fileForecast+"380ppm_0degree.txt";
+      break;
+    case "EM1_FORECAST_380_2.25":
+      console.log(val);
+      fileForecast = fileForecast+"380ppm_2_25degree.txt";
+      break;
+    case "EM1_FORECAST_380_4.5":
+      console.log(val);
+      fileForecast = fileForecast+"380ppm_4_5degree.txt";
+      break;
+    case "EM1_FORECAST_380_6.75":
+      console.log(val);
+      fileForecast = fileForecast+"380ppm_6_75degree.txt";
+      break;
+    case "EM1_FORECAST_380_9":
+      console.log(val);
+      fileForecast = fileForecast+"380ppm_9degree.txt";
+      break;
+    case "EM1_FORECAST_900_0":
+      console.log(val);
+      fileForecast = fileForecast+"900ppm_0degree.txt";
+      break;
+    case "EM1_FORECAST_900_2.25":
+      console.log(val);
+      fileForecast = fileForecast+"900ppm_2_25degree.txt";
+      break;
+    case "EM1_FORECAST_900_4.5":
+      console.log(val);
+      fileForecast = fileForecast+"900ppm_4_5degree.txt";
+      break;
+    case "EM1_FORECAST_900_6.75":
+      console.log(val);
+      fileForecast = fileForecast+"900ppm_6_75degree.txt";
+      break;
+    case "EM1_FORECAST_900_9":
+      console.log(val);
+      fileForecast = fileForecast+"900ppm_9degree.txt";
+      break;
+  }
+
+  var obj_var = document.getElementById("forecast_var");
+  // var var_name = obj_var.options[obj_var.selectedIndex].value;
+  var var_name = obj_var.options[obj_var.selectedIndex].text;
+
+  console.log(fileForecast)
+  // use Plotly.d3 library to read the csv file 
+  Plotly.d3.csv(
+    fileForecast,
+    function(allRows){
+      // prepare the rusult
+      console.log(allRows);
+      var x = [], y = [];
+
+      for (var i=0; i<allRows.length; i++) {
+        row = allRows[i];
+        x.push( row['sdoy'] );
+        y.push( row[var_name] );
+      }
+      // log("read x and y arrays, going to plot");
+      //log(`x=${x} y=${y}`);
+      var trace1 = {
+        x: x,
+        y: y,
+        type: 'scatter'
+      };
+      
+      var data = [trace1];
+      var layout = {
+        showlegend: false,
+        title:val_text,
+        yaxis: {title: var_name},
+        xaxis: {title: "Time"},
+      }
+      Plotly.newPlot('plotDiv1', data, layout);
+    } );
+  // }
+}
+
+// function getTime(){
+//   updataTimeFile = "/data/show_forecast_results/log_forecast_time.txt"
+//   var lastestTime;
+//   var reader = new FileReader();
+//   reader.readAsText(updataTimeFile, "UTF-8");
+//   reader.onload = function (e) {
+//       var content = e.target.result;
+//       console.log(content);
+//       var arr = content.split('\n');
+//       console.log(arr[arr.length-2])
+//       lastestTime = arr[arr.length-1]
+//   }
+//   return lastestTime;
+// }
+
+// function getTime(){
+//   updataTimeFile = "/data/show_forecast_results/log_forecast_time.txt"
+//   var lastestTime;
+//   var fso=new ActiveXObject(Scripting.FileSystemObject);
+//   var f = fso.opentextfile(updataTimeFile,1,false);
+//   console.log(f.ReadAll())
+// }
