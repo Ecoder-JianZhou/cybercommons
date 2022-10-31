@@ -7,14 +7,14 @@ RUN apt-get update && \
 	gfortran \
 	vim 
 
-RUN Rscript -e "install.packages('ggplot2',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
-RUN Rscript -e "install.packages('readxl',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
-RUN Rscript -e "install.packages('zoo',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
-RUN Rscript -e "install.packages('rstudioapi',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
-RUN Rscript -e "install.packages('magrittr',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
-RUN Rscript -e "install.packages('reshape',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
-RUN Rscript -e "install.packages('gridExtra',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
-RUN Rscript -e "install.packages('stringr',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
+# RUN Rscript -e "install.packages('ggplot2',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
+# RUN Rscript -e "install.packages('readxl',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
+# RUN Rscript -e "install.packages('zoo',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
+# RUN Rscript -e "install.packages('rstudioapi',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
+# RUN Rscript -e "install.packages('magrittr',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
+# RUN Rscript -e "install.packages('reshape',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
+# RUN Rscript -e "install.packages('gridExtra',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
+# RUN Rscript -e "install.packages('stringr',dependencies=TRUE, repos='http://cran.rstudio.com/')" 
 
 RUN mkdir /var/run/sshd 
 
@@ -40,7 +40,7 @@ COPY ./input ./input
 RUN mkdir output
 COPY ./output ./output
 
-COPY test_R.r .
+# COPY test_R.r .
 
 USER root
 
