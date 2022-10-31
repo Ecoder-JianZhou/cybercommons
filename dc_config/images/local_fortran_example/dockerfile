@@ -30,6 +30,10 @@ USER $CELERY_SSH_USER
 COPY test.f90 .
 RUN gfortran -o test test.f90
 
+RUN mkdir models
+COPY ./models ./models
+COPY run.py .
+
 RUN mkdir input
 COPY ./input ./input
 
