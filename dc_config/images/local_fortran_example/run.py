@@ -1,7 +1,7 @@
 # this is for running TECO-SPRUCE and matrix-models
 # local container provides the TECO-SPRUCE and 8 matrix models.
 
-import os
+import os, argparse
 import subprocess 
 curPath = os.path.dirname(__file__)
 
@@ -39,11 +39,19 @@ def readYml(ymlName):
         data = yaml.load(f, Loader=SafeLoader)
     return data
 
-def main_run(settingFile=None):
+if __name__=="__main__":
+    settingFile = None
+    try:
+        parser = argparse.ArgumentParser(description="command-line")
+        parser.add_argument("settingFile", type=str, help='input the setting file name')
+        args   = parser.parse_args()
+        settingFile = args.settingFile
+    except:
+        print("Do not privide the setting information. Use the default setting.")
+
     # read setting.yml file
     if settingFile is None:
         dictSettings = readYml(curPath+"/default_setting.yml")
     else:
         dictSettings = readYml(settingFile)
-
-run_TECO_SPRUCE()
+    print(settingFile)

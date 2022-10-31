@@ -194,7 +194,10 @@ form.addEventListener("submit", function (event) {
   
   var obj_func  = document.getElementById("function");
   var func_name = obj_func.options[obj_func.selectedIndex].value;
-  var url = "http://localhost/api/queue/run/ecopadq.tasks.tasks.run_"+func_name+"/"
+  var url = "http://localhost/api/queue/run/ecopadq.tasks.tasks.test_run_"+func_name+"/"
+  if (func_name == "auto_forecast"){
+    url = "http://localhost/api/queue/run/ecopadq.tasks.tasks.run_auto_forecast"
+  }
   console.log("Running model: ", model_name)
   console.log("Running site: ", site_name)
   console.log("Running function: ", url)
