@@ -242,7 +242,6 @@ form.addEventListener("submit", function (event) {
 });
 
 
-
 // add by Jian to plot the results of forecasting
 function showForecastResults(){
   var exp_idx  = document.getElementById("forecast_select").selectedIndex;
@@ -255,79 +254,169 @@ function showForecastResults(){
   // }else{
   // console.log(index)
   // console.log(val)
+  var obj_var = document.getElementById("forecast_var");
+  var var_name = obj_var.options[obj_var.selectedIndex].value;
+  // var var_name = obj_var.options[obj_var.selectedIndex].text;
   var fileForecast = "/data/show_forecast_results/lastest_forecast_results_";
   switch(val){
     case "EM1_FORECAST_380_0":
       console.log(val);
-      fileForecast = fileForecast+"380ppm_0degree.txt";
+      fileForecast = fileForecast+"380ppm_0degree/"+var_name+".csv";
       break;
     case "EM1_FORECAST_380_2.25":
       console.log(val);
-      fileForecast = fileForecast+"380ppm_2_25degree.txt";
+      fileForecast = fileForecast+"380ppm_2_25degree/"+var_name+".csv";
       break;
     case "EM1_FORECAST_380_4.5":
       console.log(val);
-      fileForecast = fileForecast+"380ppm_4_5degree.txt";
+      fileForecast = fileForecast+"380ppm_4_5degree/"+var_name+".csv";
       break;
     case "EM1_FORECAST_380_6.75":
       console.log(val);
-      fileForecast = fileForecast+"380ppm_6_75degree.txt";
+      fileForecast = fileForecast+"380ppm_6_75degree/"+var_name+".csv";
       break;
     case "EM1_FORECAST_380_9":
       console.log(val);
-      fileForecast = fileForecast+"380ppm_9degree.txt";
+      fileForecast = fileForecast+"380ppm_9degree/"+var_name+".csv";
       break;
     case "EM1_FORECAST_900_0":
       console.log(val);
-      fileForecast = fileForecast+"900ppm_0degree.txt";
+      fileForecast = fileForecast+"900ppm_0degree/"+var_name+".csv";
       break;
     case "EM1_FORECAST_900_2.25":
       console.log(val);
-      fileForecast = fileForecast+"900ppm_2_25degree.txt";
+      fileForecast = fileForecast+"900ppm_2_25degree/"+var_name+".csv";
       break;
     case "EM1_FORECAST_900_4.5":
       console.log(val);
-      fileForecast = fileForecast+"900ppm_4_5degree.txt";
+      fileForecast = fileForecast+"900ppm_4_5degree/"+var_name+".csv";
       break;
     case "EM1_FORECAST_900_6.75":
       console.log(val);
-      fileForecast = fileForecast+"900ppm_6_75degree.txt";
+      fileForecast = fileForecast+"900ppm_6_75degree/"+var_name+".csv";
       break;
     case "EM1_FORECAST_900_9":
       console.log(val);
-      fileForecast = fileForecast+"900ppm_9degree.txt";
+      fileForecast = fileForecast+"900ppm_9degree/"+var_name+".csv";
       break;
   }
 
-  var obj_var = document.getElementById("forecast_var");
-  // var var_name = obj_var.options[obj_var.selectedIndex].value;
-  var var_name = obj_var.options[obj_var.selectedIndex].text;
-
+  function dateFromDay(year, day){
+    var date = new Date(year, 0); // initialize a date in `year-01-01`
+    return new Date(date.setDate(day)); // add the number of days
+  }
   console.log(fileForecast)
   // use Plotly.d3 library to read the csv file 
   Plotly.d3.csv(
     fileForecast,
     function(allRows){
       // prepare the rusult
-      console.log(allRows);
-      var x = [], y = [];
-
+      // console.log(allRows);
+      var year, doy,seqData=[], teco=[];
+      // "TEM","DALEC","TECO","FBDC","CASA","CENTURY","CLM","ORCHIDEE"]
+      var tem=[], dalec=[], tecoMat=[], fbdc=[], casa=[], century=[], clm=[], orchidee=[];
       for (var i=0; i<allRows.length; i++) {
-        row = allRows[i];
-        x.push( row['sdoy'] );
-        y.push( row[var_name] );
+        row   = allRows[i];
+        year  = row['year'];
+        doy   = row['doy'];
+        // seqData.push(new Date(year, month, day));
+        seqData.push(dateFromDay(year,doy))
+        teco.push( row['TECO_SPRUCE']);
+        tem.push(row['TEM']);
+        dalec.push(row['DALEC']); 
+        tecoMat.push(row['TECO']); 
+        fbdc.push(row['FBDC'] ); 
+        casa.push(row['CASA'] ); 
+        century.push(row['CENTURY'] ); 
+        clm.push(row['CLM'] ); 
+        orchidee.push(row['ORCHIDEE']);
       }
-      // log("read x and y arrays, going to plot");
-      //log(`x=${x} y=${y}`);
       var trace1 = {
-        x: x,
-        y: y,
-        type: 'scatter'
+        x: seqData,
+        y: teco,
+        type: 'scatter',
+        line: {color: "rgba(0,0,0,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "TECO_SPRUCE",
+         showlegend:true
       };
-      
-      var data = [trace1];
+      var trace2 = {
+        x: seqData,
+        y: tem,
+        type: 'scatter',
+        line: {color: "rgba(255,0,0,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "TEM",
+         showlegend:true
+      };
+      var trace3 = {
+        x: seqData,
+        y: dalec,
+        type: 'scatter',
+        line: {color: "rgba(0,255,0,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "DALEC",
+         showlegend:true
+      };
+      var trace4 = {
+        x: seqData,
+        y: tecoMat,
+        type: 'scatter',
+        line: {color: "rgba(0,0,255,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "TECO_matrix",
+         showlegend:true
+      };
+      var trace5 = {
+        x: seqData,
+        y: fbdc,
+        type: 'scatter',
+        line: {color: "rgba(255,255,0,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "FBDC",
+         showlegend:true
+      };
+      var trace6 = {
+        x: seqData,
+        y: casa,
+        type: 'scatter',
+        line: {color: "rgba(0,255,255,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "CASA",
+         showlegend:true
+      };
+      var trace7 = {
+        x: seqData,
+        y: century,
+        type: 'scatter',
+        line: {color: "rgba(255,0,255,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "CENTURY",
+         showlegend:true
+      };
+      var trace8 = {
+        x: seqData,
+        y: clm,
+        type: 'scatter',
+        line: {color: "rgba(128,0,128,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "CLM",
+         showlegend:true
+      };
+      var trace9 = {
+        x: seqData,
+        y: orchidee,
+        type: 'scatter',
+        line: {color: "rgba(0,0,128,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "ORCHIDEE",
+         showlegend:true
+      };
+      // ---------------------
+      var data = [trace1, trace2, trace3, trace4, trace5, trace6, trace7, trace8, trace9];
+      console.log(data)
       var layout = {
-        showlegend: false,
+        showlegend: true,
         title:val_text,
         yaxis: {title: var_name},
         xaxis: {title: "Time"},
@@ -336,6 +425,207 @@ function showForecastResults(){
     } );
   // }
 }
+
+
+
+
+// add by Jian to plot the results of spruce-mip
+function showSPRUCEMIPresults(){
+  var exp_idx  = document.getElementById("sprucemip_select").selectedIndex;
+  var var_idx  = document.getElementById("sprucemip_var").selectedIndex;
+  // if     
+  var val      = document.getElementById("sprucemip_select").options[exp_idx].value;
+  var val_text = document.getElementById("sprucemip_select").options[exp_idx].text;
+  // if (exp_idx == 0 || var_idx ==0){
+  //   console.log("both variable and experiment need be choosed!")
+  // }else{
+  // console.log(index)
+  // console.log(val)
+  var obj_var = document.getElementById("sprucemip_var");
+  var var_name = obj_var.options[obj_var.selectedIndex].value;
+  // var var_name = obj_var.options[obj_var.selectedIndex].text;
+  var fileSPRUCEmip = "/data/SPRUCE_MIP/results_";
+  switch(val){
+    case "EM1_SIMULATION_AMB_AMB":
+      console.log(val);
+      fileSPRUCEmip = fileSPRUCEmip+"AMBppm_AMBdegree/"+var_name+".csv";
+      break;
+    case "EM1_SIMULATION_380_0":
+      console.log(val);
+      fileSPRUCEmip = fileSPRUCEmip+"380ppm_0degree/"+var_name+".csv";
+      break;
+    case "EM1_SIMULATION_380_2.25":
+      console.log(val);
+      fileSPRUCEmip = fileSPRUCEmip+"380ppm_2_25degree/"+var_name+".csv";
+      break;
+    case "EM1_SIMULATION_380_4.5":
+      console.log(val);
+      fileSPRUCEmip = fileSPRUCEmip+"380ppm_4_5degree/"+var_name+".csv";
+      break;
+    case "EM1_SIMULATION_380_6.75":
+      console.log(val);
+      fileSPRUCEmip = fileSPRUCEmip+"380ppm_6_75degree/"+var_name+".csv";
+      break;
+    case "EM1_SIMULATION_380_9":
+      console.log(val);
+      fileSPRUCEmip = fileSPRUCEmip+"380ppm_9degree/"+var_name+".csv";
+      break;
+    case "EM1_SIMULATION_900_0":
+      console.log(val);
+      fileSPRUCEmip = fileSPRUCEmip+"900ppm_0degree/"+var_name+".csv";
+      break;
+    case "EM1_SIMULATION_900_2.25":
+      console.log(val);
+      fileSPRUCEmip = fileSPRUCEmip+"900ppm_2_25degree/"+var_name+".csv";
+      break;
+    case "EM1_SIMULATION_900_4.5":
+      console.log(val);
+      fileSPRUCEmip = fileSPRUCEmip+"900ppm_4_5degree/"+var_name+".csv";
+      break;
+    case "EM1_SIMULATION_900_6.75":
+      console.log(val);
+      fileSPRUCEmip = fileSPRUCEmip+"900ppm_6_75degree/"+var_name+".csv";
+      break;
+    case "EM1_SIMULATION_900_9":
+      console.log(val);
+      fileSPRUCEmip = fileSPRUCEmip+"900ppm_9degree/"+var_name+".csv";
+      break;
+  }
+
+  function dateFromDay1(year, day){
+    var date = new Date(year, 0); // initialize a date in `year-01-01`
+    return new Date(date.setDate(day)); // add the number of days
+  }
+  console.log(fileSPRUCEmip)
+  // use Plotly.d3 library to read the csv file 
+  Plotly.d3.csv(
+    fileSPRUCEmip,
+    function(allRows){
+      // prepare the rusult
+      // console.log(allRows);
+      var year, doy,seqData=[], teco=[];
+      // "TEM","DALEC","TECO","FBDC","CASA","CENTURY","CLM","ORCHIDEE"]
+      var tem=[], dalec=[], tecoMat=[], fbdc=[], casa=[], century=[], clm=[], orchidee=[];
+      for (var i=0; i<allRows.length; i++) {
+        row   = allRows[i];
+        year  = row['year'];
+        doy   = row['doy'];
+        // seqData.push(new Date(year, month, day));
+        seqData.push(dateFromDay1(year,doy))
+        // teco.push( row['TECO_SPRUCE']);
+        tem.push(row['TEM']);
+        dalec.push(row['DALEC']); 
+        tecoMat.push(row['TECO']); 
+        fbdc.push(row['FBDC'] ); 
+        casa.push(row['CASA'] ); 
+        century.push(row['CENTURY'] ); 
+        clm.push(row['CLM'] ); 
+        orchidee.push(row['ORCHIDEE']);
+      }
+      // var trace1 = {
+      //   x: seqData,
+      //   y: teco,
+      //   type: 'scatter',
+      //   line: {color: "rgba(0,0,0,0.3)", width: 1}, 
+      //    mode: "lines", 
+      //    name: "TECO_SPRUCE",
+      //    showlegend:true
+      // };
+      var trace2 = {
+        x: seqData,
+        y: tem,
+        type: 'scatter',
+        line: {color: "rgba(255,0,0,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "TEM",
+         showlegend:true
+      };
+      var trace3 = {
+        x: seqData,
+        y: dalec,
+        type: 'scatter',
+        line: {color: "rgba(0,255,0,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "DALEC",
+         showlegend:true
+      };
+      var trace4 = {
+        x: seqData,
+        y: tecoMat,
+        type: 'scatter',
+        line: {color: "rgba(0,0,255,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "TECO_matrix",
+         showlegend:true
+      };
+      var trace5 = {
+        x: seqData,
+        y: fbdc,
+        type: 'scatter',
+        line: {color: "rgba(255,255,0,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "FBDC",
+         showlegend:true
+      };
+      var trace6 = {
+        x: seqData,
+        y: casa,
+        type: 'scatter',
+        line: {color: "rgba(0,255,255,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "CASA",
+         showlegend:true
+      };
+      var trace7 = {
+        x: seqData,
+        y: century,
+        type: 'scatter',
+        line: {color: "rgba(255,0,255,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "CENTURY",
+         showlegend:true
+      };
+      var trace8 = {
+        x: seqData,
+        y: clm,
+        type: 'scatter',
+        line: {color: "rgba(128,0,128,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "CLM",
+         showlegend:true
+      };
+      var trace9 = {
+        x: seqData,
+        y: orchidee,
+        type: 'scatter',
+        line: {color: "rgba(0,0,128,0.3)", width: 1}, 
+         mode: "lines", 
+         name: "ORCHIDEE",
+         showlegend:true
+      };
+      // ---------------------
+      var data = [trace2, trace3, trace4, trace5, trace6, trace7, trace8, trace9];
+      console.log(data)
+      var layout = {
+        showlegend: true,
+        title:val_text,
+        yaxis: {title: var_name},
+        xaxis: {title: "Time"},
+      }
+      Plotly.newPlot('plotDiv2', data, layout);
+    } );
+  // }
+}
+
+
+
+
+
+
+
+
+
+
 
 // function getTime(){
 //   updataTimeFile = "/data/show_forecast_results/log_forecast_time.txt"

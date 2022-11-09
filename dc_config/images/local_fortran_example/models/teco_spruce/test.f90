@@ -248,8 +248,8 @@ program TECO_MCMC
     write(*,*)"test first: ", watertablefile
     call Getclimate(year_seq1,doy_seq1,hour_seq1,          &
         &   forcing_data1,climatefile1,lines1,yr_length1)
-    call Getwatertable(year_seq,doy_seq,hour_seq,          &
-        &   water_table,watertablefile,lines,yr_length)
+    ! call Getwatertable(year_seq,doy_seq,hour_seq,          &
+    !     &   water_table,watertablefile,lines,yr_length)
     if (.not. do_snow) then
         call Getsnowdepth(year_seq,doy_seq,hour_seq,          &
             &   snow_in,snowdepthfile,lines,yr_length)
@@ -259,8 +259,8 @@ program TECO_MCMC
     ! getwatertable and snowdepth are used as forcing in soil thermal module by Yuanyuan   ..int
     
     ! Read observation data
-    call getarg(3,obsfile1)
-    ! obsfile1='input/SPRUCE_obs.txt' 5/25 #only need this file
+    call getarg(13,obsfile1)
+    obsfile1='input/SPRUCE_obs.txt' !5/25 #only need this file
 
     ! added obs files 2-6 for ..int
     obsfile2='input/process-based-TECO_input/SPRUCE_hummock_toplayer.txt' 
@@ -274,11 +274,11 @@ program TECO_MCMC
     ! ..int more obs files added in the getobsdata subroutine
     ! call GetObsData(obs_spruce,std,len1,obsfile1)      
     ! ..int read obs files for CO2, soil thermal and soil water DA
-    call GetObsData(obs_spruce,std,obs_soilwater,     &
-        &   len1,len2,obsfile1,obsfile2,obs_soilt,obsfile3,obs_watertable_d,obs_soilt_d,&
-        &   obsfile4,obsfile5,len3)  
+    ! call GetObsData(obs_spruce,std,obs_soilwater,     &
+    !     &   len1,len2,obsfile1,obsfile2,obs_soilt,obsfile3,obs_watertable_d,obs_soilt_d,&
+    !     &   obsfile4,obsfile5,len3)  
     ! ..int read obs files for methane DA
-    call GetObsCH4Data(obs_CH4_MEMCMC,std_CH4,len6,obsfile6)            
+    ! call GetObsCH4Data(obs_CH4_MEMCMC,std_CH4,len6,obsfile6)            
     ! initiations for canopy model, including canopy traits variation in a year
     call consts(pi,tauL,rhoL,rhoS,emleaf,emsoil,&
         &    Rconst,sigma,cpair,Patm,Trefk,H2OLv0,airMa,H2OMw,chi,Dheat,&
@@ -300,7 +300,7 @@ program TECO_MCMC
     ! QC=(/500.,650.,200.,119.,300.,322.,38340.,23120./)     ! ecosystem initial state for 2011 forward
     QC=(/450.,380.,250.,119.,300.,322.,38340.,23120./)      ! updated leave wood biomass due to the change of estimated plot area
     ! Start main loop
-    call getarg(4,outdir)
+    call getarg(3,outdir)
     ! outdir = 'output'
     ! chang edited_060618
     if (do_co2_da.ne.1) then
@@ -321,11 +321,12 @@ program TECO_MCMC
         ! write(63,*)'wcl1,wcl2,wcl3,wcl4,wcl5,wcl6,wcl7,wcl8,wcl9,wcl10,zwt'
         write(63,*)'day,wcl1,wcl2,wcl3,wcl4,wcl5,wcl6,wcl7,wcl8,wcl9,wcl10,liq_water1,liq_water2,liq_water3,liq_water4,liq_water5,&
             & liq_water6,liq_water7,liq_water8,liq_water9,liq_water10,ice1,ice2,ice3,ice4,ice5,ice6,ice7,ice8,ice9,ice10,zwt'    
-        write(outfile,"(A120,A24)") trim(outdir),"/Simu_dailyflux14001.txt"
+        ! write(outfile,"(A120,A24)") trim(outdir),"/Simu_dailyflux14001.txt"
+        write(outfile,"(A120,A24)") trim(outdir),"/Simu_dailyflux14001.csv"
         outfile = trim(outfile)
         outfile = adjustl(outfile)
         open(662,file=outfile)
-        write(662,*)'sdoy, GPP_d, NEE_d, Reco_d, NPP_d, Ra_d, QC1, QC2, QC3, QC4, QC5, QC6, QC7, QC8, Rh_d'    
+        write(662,*)'seqday,year,doy, GPP_d, NEE_d, Reco_d, NPP_d, Ra_d, QC1, QC2, QC3, QC4, QC5, QC6, QC7, QC8, Rh_d'    
         ! end of inserting
 
         ! ..int     
@@ -419,13 +420,14 @@ program TECO_MCMC
         &  Hsoil,sftmp,Tair,resht_lai'    
     write(88,*) "melt,snow_dsim,snow_in,ta"     
     ! ***************************************************************************************    
-    call getarg(5,MCMCargu)
+    call getarg(15,MCMCargu)
     read(MCMCargu,'(i1)') do_co2_da
+    ! do_co2_da=0
     ! MCMC = 1    ! will be eventually totally replaced by    do_co2_da
 
-    call getarg(6,DAparfile)
+    ! call getarg(6,DAparfile)
     ! DAparfile='input/SPRUCE_da_pars.txt' 5/25
-    call GetDAcheckbox(DApar,parmin,parmax,DAparfile)
+    ! call GetDAcheckbox(DApar,parmin,parmax,DAparfile)
 
     ! if(MCMC.eq.1) GOTO 100
     ! chang edited_060618  
@@ -1283,7 +1285,7 @@ subroutine TECO_simu(MCMC,do_co2_da,Simu_dailyflux,Simu_soilwater,obs_soilwater,
     real r_me,Q10pro,kCH4,Omax,CH4_thre,Tveg,Tpro_me,Toxi
     logical do_snow,do_soilphy
     real Ebu_sum_sat, Ebu_sum_unsat
-    integer nyear,idayOfnyear ! Jian: to record the output
+    integer nyear,idayOfnyear !, month, dom ! Jian: to record the output
     ! *******************************************
     ! ***  for write out data
     ! logical do_co2_da
@@ -1403,6 +1405,7 @@ subroutine TECO_simu(MCMC,do_co2_da,Simu_dailyflux,Simu_soilwater,obs_soilwater,
         else
             idays=365
         endif
+
         GDD5=0.0
         onset=0
         phenoset=0
@@ -1456,11 +1459,52 @@ subroutine TECO_simu(MCMC,do_co2_da,Simu_dailyflux,Simu_soilwater,obs_soilwater,
         topfws_yr=0.
         hoy=0
         ! end of leap year
+        ! dom = 0
         do days=1,idays !the days of a year
             ! Nitrogen fertilization since 2004 in Oak Ridge
             ! if(yr>yrs_eq+5.and.days==135)then
             !     QNminer=QNminer+N_fert     !(20 gN/yr/m2,N fertiliztion in Spring)
             ! endif
+            ! if (days .le. 31) month = 1; dom = days
+            ! if (days .eq. 32) dom = 1
+            ! if (idays .eq. 366)then
+            !     if (days .eq. 61) dom = 1
+            !     if (days .eq. 61) dom = 1
+            !     if (days .eq. 61) dom = 1
+            !     if (days .eq. 61) dom = 1
+            !     if (days .eq. 61) dom = 1
+            !     if (days .eq. 61) dom = 1
+            !     if (days .eq. 61) dom = 1
+            !     if (days .eq. 61) dom = 1
+            !     if (days .eq. 61) dom = 1
+            !     if (days .eq. 61) dom = 1
+            !     if (days .eq. 61) dom = 1
+            !     if (days .eq. 61) dom = 1
+            !     ! ------------------------------------------------------------
+            !     if (days .gt. 31 .and. days .le. 60) month   = 2; dom = dom + 1
+            !     if (days .gt. 60 .and. days .le. 91) month   = 3
+            !     if (days .gt. 91 .and. days .le. 121) month  = 4
+            !     if (days .gt. 121 .and. days .le. 152) month = 5
+            !     if (days .gt. 152 .and. days .le. 182) month = 6
+            !     if (days .gt. 182 .and. days .le. 213) month = 7
+            !     if (days .gt. 213 .and. days .le. 244) month = 8
+            !     if (days .gt. 244 .and. days .le. 274) month = 9
+            !     if (days .gt. 274 .and. days .le. 305) month = 10
+            !     if (days .gt. 305 .and. days .le. 335) month = 11
+            !     if (days .gt. 335 .and. days .le. 366) month = 12
+            ! else
+            !     if (days .gt. 31 .and. days .le. 59) month   = 2
+            !     if (days .gt. 59 .and. days .le. 90) month   = 3
+            !     if (days .gt. 90 .and. days .le. 120) month  = 4
+            !     if (days .gt. 120 .and. days .le. 151) month = 5
+            !     if (days .gt. 151 .and. days .le. 181) month = 6
+            !     if (days .gt. 181 .and. days .le. 212) month = 7
+            !     if (days .gt. 212 .and. days .le. 243) month = 8
+            !     if (days .gt. 243 .and. days .le. 273) month = 9
+            !     if (days .gt. 273 .and. days .le. 304) month = 10
+            !     if (days .gt. 304 .and. days .le. 334) month = 11
+            !     if (days .gt. 334 .and. days .le. 365) month = 12
+            ! end if
 
             ! Nitrogen fertilization since 1999 in Duke
             if(yr>yrs_eq+1.and.(days==75.OR.days==105))then
@@ -2039,11 +2083,12 @@ subroutine TECO_simu(MCMC,do_co2_da,Simu_dailyflux,Simu_soilwater,obs_soilwater,
             endif
             do idayOfnyear=1,idays
                 write(62,602)i,nyear,idayOfnyear,(Simu_dailyflux(j,i),j=1,12)
+                write(662,6602)i,nyear,idayOfnyear,(Simu_dailyflux14(j,i),j=1,14)
                 i=i+1
             enddo
         enddo
         do i=1,daily
-            write(662,6602)i,(Simu_dailyflux14(j,i),j=1,14)
+            ! write(662,6602)i,year,(Simu_dailyflux14(j,i),j=1,14)
             write(63,603)i,(Simu_dailywater(j,i),j=1,31)
             write(64,604)i,(Simu_dailyCH4(j,i),j=1,16)
 
@@ -2054,7 +2099,7 @@ subroutine TECO_simu(MCMC,do_co2_da,Simu_dailyflux,Simu_soilwater,obs_soilwater,
         enddo
        
 602      format(3(i7),",",11(f15.4,","),(f15.4))
-6602     format((i7),",",13(f15.4,","),(f15.4)) 
+6602     format(3(i7,","),13(f15.4,","),(f15.4)) 
 603      format((i7),",",30(f15.4,","),(f15.4))
 604      format((i7),",",15(f15.4,","),(f15.4))
 605      format((i7),",",10(f15.4,","),(f15.4))
@@ -5098,7 +5143,7 @@ subroutine Getclimate(year_seq,doy_seq,hour_seq,          &
     integer, parameter :: iiterms=7
     integer,dimension(ilines):: year_seq,doy_seq,hour_seq
     real forcing_data(iiterms,ilines)
-    character(len=150) climatefile,commts
+    character(len=250) climatefile,commts
     integer m,n,istat1,lines,yr_length
 
     open(11,file=climatefile,status='old',ACTION='read',     &
@@ -5283,7 +5328,7 @@ subroutine Getwatertable(year_seq,doy_seq,hour_seq,          &
     integer, parameter :: ilines=90000
     integer,dimension(ilines):: year_seq,doy_seq,hour_seq
     real water_table(ilines)
-    character(len=100) watertablefile,commts
+    character(len=250) watertablefile,commts
     integer m,n,istat1,lines,yr_length
     real water_table_read
     integer year,doy,hour,istat111

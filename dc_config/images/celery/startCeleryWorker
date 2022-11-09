@@ -11,4 +11,5 @@ log_level=os.environ.get("LOG_LEVEL","INFO")
 
 # change by Jian Zhou: to test the schedule task for Forecasting weekly.
 # call(["celery", "-A", celery_queue, "beat", "--detach"])
+# call(["chown", -R $CELERY_SSH_USER:$CELERY_SSH_USER /data])
 call(["celery", "worker", "-Q", celery_queue, "-l", log_level])

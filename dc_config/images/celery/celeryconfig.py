@@ -39,11 +39,11 @@ imports = tuple(os.environ.get('CELERY_IMPORTS').split(','))
 
 # add by Jian: to set the schedule task to run forecasting.
 beat_schedule = {
-    # 名字随意命名
+    # name
     'test-30-seconds': {
-        # 执行tasks1下的test_celery函数
+        # to run which function
         'task': 'ecopadq.tasks.tasks.jian',
-        # 每隔2秒执行一次
+        # run it every 1 second.
         # 'schedule': 1.0,
         # 'schedule': crontab(minute="*/1"),
         'schedule': timedelta(seconds=30),

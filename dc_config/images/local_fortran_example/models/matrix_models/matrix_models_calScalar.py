@@ -7,14 +7,15 @@ import os
 
 def readEnvData(filePath):
     envData  = {}
-    envData["tair_d"]   = pd.read_csv(filePath+"climate/tair_day.csv")
-    envData["tair_m"]   = pd.read_csv(filePath+"climate/tair_month.csv")
-    envData["rain_d"]   = pd.read_csv(filePath+"climate/rainfall_day.csv")
-    envData["rain_m"]   = pd.read_csv(filePath+"climate/rainfall_month.csv")
-    envData["stemp_d"]  = pd.read_csv(filePath+"stemp/stemp_day.csv")
-    envData["stemp_m"]  = pd.read_csv(filePath+"stemp/stemp_month.csv")
-    envData["smoist_d"] = pd.read_csv(filePath+"smoist/smoist_day.csv")
-    envData["smoist_m"] = pd.read_csv(filePath+"smoist/smoist_month.csv")
+    print(filePath)
+    envData["tair_d"]   = pd.read_csv(filePath+"/climate/tair_day.csv")
+    envData["tair_m"]   = pd.read_csv(filePath+"/climate/tair_month.csv")
+    envData["rain_d"]   = pd.read_csv(filePath+"/climate/rainfall_day.csv")
+    envData["rain_m"]   = pd.read_csv(filePath+"/climate/rainfall_month.csv")
+    envData["stemp_d"]  = pd.read_csv(filePath+"/climate/stemp/stemp_day.csv")
+    envData["stemp_m"]  = pd.read_csv(filePath+"/climate/stemp/stemp_month.csv")
+    envData["smoist_d"] = pd.read_csv(filePath+"/climate/smoist/smoist_day.csv")
+    envData["smoist_m"] = pd.read_csv(filePath+"/climate/smoist/smoist_month.csv")
     return envData
     
 
@@ -95,8 +96,8 @@ def calScalars_CENTURY(tair_d, tair_m, rain_m, stemp_m): # monthly
 
 def calScalars_TECO(stemp_d, smoist_d):
     # TECO ###############  
-    tmp_teco=np.nanmean(stemp_d.iloc[:,1:].to_numpy()[:,2:], axis=1)  # mean of 10 layers of soils
-    mst_teco=np.nanmean(smoist_d.iloc[:,1:].to_numpy()[:,1:], axis=1) # mean of 10 layers of soils
+    tmp_teco=np.nanmean(stemp_d.iloc[:,1:].to_numpy()[:,2:],  axis=1)  # mean of 10 layers of soils
+    mst_teco=np.nanmean(smoist_d.iloc[:,1:].to_numpy()[:,1:], axis=1)  # mean of 10 layers of soils
     Q10=2.5 # unitless	sensitive of microbial decomposition to temperature
     
     # temperature scalar based on 10-day moving temperature
@@ -398,9 +399,9 @@ def calScalars_ORCHIDEE(stemp_d, smoist_d):
     Bscalar_tem = np.ones((len(stemp_d), 101))
     return scal_temp_tem, scal_water_tem, scal_env_tem, Bscalar_tem
 
-def save2csv(df_datetime,dictData,modelName):
+def save2csv(df_datetime,dictData,modelName,output_path):
     # dictData: "scal_temp_tem", "scal_water_tem", "scal_env_tem", "Bscalar_tem"
-    output_path = "input/matrix_models_input"
+    # output_path = "input/matrix_models_input"
     os.makedirs(output_path+"/Bscalar", exist_ok = True)
     os.makedirs(output_path+"/scalar", exist_ok = True)
     os.makedirs(output_path+"/scalar/tempscalar", exist_ok = True)
@@ -478,91 +479,94 @@ def save2csv(df_datetime,dictData,modelName):
 #     #     }
 #     # }
 
-dictEnvDataPd = readEnvData("output/matrix_models_output/")
-lsModels = ["TEM","DALEC","TECO","FBDC","CASA","CENTURY","CLM","ORCHIDEE"]
-Timestep = ["month","day","day","day","month","month","day","day"]
-# print(dictEnvDataPd)
-dictData = {}
-print("1. TEM ...")
-res = calScalars_TEM(dictEnvDataPd['tair_m'], dictEnvDataPd['smoist_m'])
-dictData["scal_temp_tem"]  = res[0]
-dictData["scal_water_tem"] = res[1]
-dictData["scal_env_tem"]   = res[2]
-dictData["Bscalar_tem"]    = res[3]
-df_datetime = dictEnvDataPd['tair_m']["Date"]
-save2csv(df_datetime,dictData,"TEM")
-#------------------------------------------------------
-print("2. CENTURY ...")
-res = calScalars_CENTURY(dictEnvDataPd['tair_d'], dictEnvDataPd['tair_m'], dictEnvDataPd['rain_m'], dictEnvDataPd['stemp_m'])
-dictData["scal_temp_tem"]  = res[0]
-dictData["scal_water_tem"] = res[1]
-dictData["scal_env_tem"]   = res[2]
-dictData["Bscalar_tem"]    = res[3]
-df_datetime = dictEnvDataPd['tair_m']["Date"]
-save2csv(df_datetime,dictData,"CENTURY")
-#------------------------------------------------------
-print("3. TECO ...")
-res = calScalars_TECO(dictEnvDataPd['stemp_d'], dictEnvDataPd['smoist_d'])
-dictData["scal_temp_tem"]  = res[0]
-dictData["scal_water_tem"] = res[1]
-dictData["scal_env_tem"]   = res[2]
-dictData["Bscalar_tem"]    = res[3]
-df_datetime = dictEnvDataPd['stemp_d']["Date"]
-save2csv(df_datetime,dictData,"TECO")
-#------------------------------------------------------
-print("4. CASA ...")
-res = calScalars_CASA(dictEnvDataPd['tair_d'], dictEnvDataPd['tair_m'], dictEnvDataPd['stemp_m'], dictEnvDataPd['smoist_m'], dictEnvDataPd['rain_m'])
-dictData["scal_temp_tem"]  = res[0]
-dictData["scal_water_tem"] = res[1]
-dictData["scal_env_tem"]   = res[2]
-dictData["Bscalar_tem"]    = res[3]
-df_datetime = dictEnvDataPd['tair_m']["Date"]
-save2csv(df_datetime,dictData,"CASA")
-#------------------------------------------------------
-print("5. FBDC ...")
-res = calScalars_FBDC(dictEnvDataPd['tair_d'])
-dictData["scal_temp_tem"]  = res[0]
-dictData["scal_water_tem"] = res[1]
-dictData["scal_env_tem"]   = res[2]
-dictData["Bscalar_tem"]    = res[3]
-df_datetime = dictEnvDataPd['tair_d']["Date"]
-save2csv(df_datetime,dictData,"FBDC")
-#------------------------------------------------------
-print("6. DALEC2 ...")
-res = calScalars_DALEC2(dictEnvDataPd['stemp_d'])
-dictData["scal_temp_tem"]  = res[0]
-dictData["scal_water_tem"] = res[1]
-dictData["scal_env_tem"]   = res[2]
-dictData["Bscalar_tem"]    = res[3]
-df_datetime = dictEnvDataPd['stemp_d']["Date"]
-save2csv(df_datetime,dictData,"DALEC")
-#------------------------------------------------------
-print("7. CLM ...")
-res = calScalars_CLM(dictEnvDataPd['stemp_d'], dictEnvDataPd['smoist_d'])
-dictData["scal_temp_tem"]  = res[0]
-dictData["scal_water_tem"] = res[1]
-dictData["scal_env_tem"]   = res[2]
-dictData["Bscalar_tem"]    = res[3]
-df_datetime = dictEnvDataPd['stemp_d']["Date"]
-save2csv(df_datetime,dictData,"CLM")
-#------------------------------------------------------
-print("8. ORCHIDEE ...")
-res = calScalars_ORCHIDEE(dictEnvDataPd['stemp_d'], dictEnvDataPd['smoist_d'])
-dictData["scal_temp_tem"]  = res[0]
-dictData["scal_water_tem"] = res[1]
-dictData["scal_env_tem"]   = res[2]
-dictData["Bscalar_tem"]    = res[3]
-df_datetime = dictEnvDataPd['stemp_d']["Date"]
-save2csv(df_datetime,dictData,"ORCHIDEE")
-#------------------------------------------------------
+def run(inPath, outPath):
+    # dictEnvDataPd = readEnvData("output/matrix_models_output/")
+    os.makedirs(outPath, exist_ok = True)
+    dictEnvDataPd = readEnvData(inPath)
+    lsModels = ["TEM","DALEC","TECO","FBDC","CASA","CENTURY","CLM","ORCHIDEE"]
+    Timestep = ["month","day","day","day","month","month","day","day"]
+    # print(dictEnvDataPd)
+    dictData = {}
+    print("1. TEM ...")
+    res = calScalars_TEM(dictEnvDataPd['tair_m'], dictEnvDataPd['smoist_m'])
+    dictData["scal_temp_tem"]  = res[0]
+    dictData["scal_water_tem"] = res[1]
+    dictData["scal_env_tem"]   = res[2]
+    dictData["Bscalar_tem"]    = res[3]
+    df_datetime = dictEnvDataPd['tair_m']["Date"]
+    save2csv(df_datetime,dictData,"TEM",outPath)
+    #------------------------------------------------------
+    print("2. CENTURY ...")
+    res = calScalars_CENTURY(dictEnvDataPd['tair_d'], dictEnvDataPd['tair_m'], dictEnvDataPd['rain_m'], dictEnvDataPd['stemp_m'])
+    dictData["scal_temp_tem"]  = res[0]
+    dictData["scal_water_tem"] = res[1]
+    dictData["scal_env_tem"]   = res[2]
+    dictData["Bscalar_tem"]    = res[3]
+    df_datetime = dictEnvDataPd['tair_m']["Date"]
+    save2csv(df_datetime,dictData,"CENTURY",outPath)
+    #------------------------------------------------------
+    print("3. TECO ...")
+    res = calScalars_TECO(dictEnvDataPd['stemp_d'], dictEnvDataPd['smoist_d'])
+    dictData["scal_temp_tem"]  = res[0]
+    dictData["scal_water_tem"] = res[1]
+    dictData["scal_env_tem"]   = res[2]
+    dictData["Bscalar_tem"]    = res[3]
+    df_datetime = dictEnvDataPd['stemp_d']["Date"]
+    save2csv(df_datetime,dictData,"TECO",outPath)
+    #------------------------------------------------------
+    print("4. CASA ...")
+    res = calScalars_CASA(dictEnvDataPd['tair_d'], dictEnvDataPd['tair_m'], dictEnvDataPd['stemp_m'], dictEnvDataPd['smoist_m'], dictEnvDataPd['rain_m'])
+    dictData["scal_temp_tem"]  = res[0]
+    dictData["scal_water_tem"] = res[1]
+    dictData["scal_env_tem"]   = res[2]
+    dictData["Bscalar_tem"]    = res[3]
+    df_datetime = dictEnvDataPd['tair_m']["Date"]
+    save2csv(df_datetime,dictData,"CASA",outPath)
+    #------------------------------------------------------
+    print("5. FBDC ...")
+    res = calScalars_FBDC(dictEnvDataPd['tair_d'])
+    dictData["scal_temp_tem"]  = res[0]
+    dictData["scal_water_tem"] = res[1]
+    dictData["scal_env_tem"]   = res[2]
+    dictData["Bscalar_tem"]    = res[3]
+    df_datetime = dictEnvDataPd['tair_d']["Date"]
+    save2csv(df_datetime,dictData,"FBDC",outPath)
+    #------------------------------------------------------
+    print("6. DALEC2 ...")
+    res = calScalars_DALEC2(dictEnvDataPd['stemp_d'])
+    dictData["scal_temp_tem"]  = res[0]
+    dictData["scal_water_tem"] = res[1]
+    dictData["scal_env_tem"]   = res[2]
+    dictData["Bscalar_tem"]    = res[3]
+    df_datetime = dictEnvDataPd['stemp_d']["Date"]
+    save2csv(df_datetime,dictData,"DALEC",outPath)
+    #------------------------------------------------------
+    print("7. CLM ...")
+    res = calScalars_CLM(dictEnvDataPd['stemp_d'], dictEnvDataPd['smoist_d'])
+    dictData["scal_temp_tem"]  = res[0]
+    dictData["scal_water_tem"] = res[1]
+    dictData["scal_env_tem"]   = res[2]
+    dictData["Bscalar_tem"]    = res[3]
+    df_datetime = dictEnvDataPd['stemp_d']["Date"]
+    save2csv(df_datetime,dictData,"CLM",outPath)
+    #------------------------------------------------------
+    print("8. ORCHIDEE ...")
+    res = calScalars_ORCHIDEE(dictEnvDataPd['stemp_d'], dictEnvDataPd['smoist_d'])
+    dictData["scal_temp_tem"]  = res[0]
+    dictData["scal_water_tem"] = res[1]
+    dictData["scal_env_tem"]   = res[2]
+    dictData["Bscalar_tem"]    = res[3]
+    df_datetime = dictEnvDataPd['stemp_d']["Date"]
+    save2csv(df_datetime,dictData,"ORCHIDEE",outPath)
+    #------------------------------------------------------
 
 
-# tair_d, tair_m,stemp_m, smoist_m, rain_m
-# print(calScalars_ORCHIDEE(dictEnvDataPd['stemp_d'], dictEnvDataPd['smoist_d']))
-# calScalars_allModelMean()
+    # tair_d, tair_m,stemp_m, smoist_m, rain_m
+    # print(calScalars_ORCHIDEE(dictEnvDataPd['stemp_d'], dictEnvDataPd['smoist_d']))
+    # calScalars_allModelMean()
 
 
-# dictEnvDataPd = readEnvData("output/matrix_models_output/")
-# # print(dictEnvDataPd)
-# # print(calScalars_TEM(dictEnvDataPd["tair_m"], dictEnvDataPd["rain_m"],dictEnvDataPd["stemp_m"],dictEnvDataPd["smoist_m"]))
-# calScalars_CENTURY(dictEnvDataPd['tair_d'], dictEnvDataPd["rain_d"],dictEnvDataPd["stemp_d"],dictEnvDataPd["smoist_d"])
+    # dictEnvDataPd = readEnvData("output/matrix_models_output/")
+    # # print(dictEnvDataPd)
+    # # print(calScalars_TEM(dictEnvDataPd["tair_m"], dictEnvDataPd["rain_m"],dictEnvDataPd["stemp_m"],dictEnvDataPd["smoist_m"]))
+    # calScalars_CENTURY(dictEnvDataPd['tair_d'], dictEnvDataPd["rain_d"],dictEnvDataPd["stemp_d"],dictEnvDataPd["smoist_d"])

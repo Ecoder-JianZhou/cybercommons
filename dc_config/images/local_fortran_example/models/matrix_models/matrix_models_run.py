@@ -1,13 +1,14 @@
 # This code modifies based on Hou et al.,2022, which is R-based code.
 # It is used to run 8 matrix-based models: "TEM","DALEC","TECO","FBDC","CASA","CENTURY","CLM","ORCHIDEE".
 # include: run spin-up, run simulation and save the traceability results.
+#   input: path_gpp, path_scal, resultDir
 
 
 
 import numpy as np
 import pandas as pd
 import copy, os
-
+curPath = os.path.dirname(__file__)
 
 class matrixModel:
     # common form of matrix-based model:
@@ -85,7 +86,7 @@ class matrixModel:
             X_new = dictXsets["cStorage"]
             # calcualate C fluxes
             cflux.loc[iLen,"GPP"]  = arr_gpp[iLen]
-            cflux.loc[iLen,"Ra"]   = arr_gpp[iLen]*(1-np.nansum(arr_Bscal[iLen,:]*self.mat_B))
+            cflux.loc[iLen,"Ra"]   = arr_gpp[iLen]*(1-np.nansum(arr_Bscal[iLen,:]*self.mat_B0))
             # calculate C fluxes: Rate of pools and input of pools
             for key, lsOrd in dict_ords.items():
                 if len(lsOrd) >=1:
@@ -155,8 +156,7 @@ def pdMatrix2dict(pd_matrix, pn):
     # get the order of pools to sum up the results
     dictOrd = {}
     # OP: order of plant pools, OL: order of litter pools; OS: order of soil pools 
-    # print(pd_matrix[pd_matrix["Pool3"] == "Plant"]["Pool_order"])
-    dictOrd["plant"]   = list(pd_matrix[pd_matrix["Pool3"] == "Plant"]["Pool_order"].to_numpy() -1  )   # from 0, not 1
+    dictOrd["plant"]   = list(pd_matrix[pd_matrix["Pool3"]      == "Plant"]["Pool_order"].to_numpy() -1  )   # from 0, not 1
     dictOrd["foliage"] = list(pd_matrix[pd_matrix["Pool_major"] == "Foliage"]["Pool_order"].to_numpy() -1  ) 
     dictOrd["wood"]    = list(pd_matrix[pd_matrix["Pool_major"] == "Wood"]["Pool_order"].to_numpy() -1      )
     dictOrd["root"]    = list(pd_matrix[pd_matrix["Pool_major"] == "Root"]["Pool_order"].to_numpy() -1 )   
@@ -172,44 +172,93 @@ def pdMatrix2dict(pd_matrix, pn):
     # ordlst = [OL,OS,OFL,OCWD,OFS,OSS,OPS]
     # nlst   = [len(OL),len(OS),len(OFL),len(OCWD),len(OFS),len(OSS),len(OPS)]
     return dictMat, dictOrd
+
+# # ===============================================================================================================
+# def month2Daily():
+
     
 # ===============================================================================================================
-Models    = ["TEM","DALEC","TECO","FBDC","CASA","CENTURY","CLM","ORCHIDEE"]
-Timestep  = ["month","day","day","day","month","month","day","day"]
-Pooln     = [2, 6, 8, 13, 14, 15, 71, 101]
-dictTime  = {"date_start": 2011, "date_end": 2014, "freq": "D"}
-path_gpp = "output/matrix_models_output/gpp/"
-for imod, modname in enumerate(Models):
-    pn = Pooln[imod]
-    print(modname, "-pools-", pn)
-    pd_matrix        = pd.read_excel("matrix/matrix.xlsx",sheet_name = modname)  # Pool_order, Pool3, Pool_major, 
-    dictMat, dictOrd = pdMatrix2dict(pd_matrix, pn)
-    # print(dictOrd)
-    # read depth file:
-    depth = pd.read_excel("input/matrix_models_input/depth/depth.xlsx", sheet_name = modname).to_numpy()[0,:pn]
-    gpp = pd.read_csv(path_gpp+"gpp_day.csv").iloc[:,1:].to_numpy()
-    gpp_m = pd.read_csv(path_gpp+"gpp_month.csv").iloc[:,1:].to_numpy()
-    len4sasu = 365
-    if Timestep[imod] == "month": dictTime["freq"] = "M"; gpp =  gpp_m; len4sasu=12
-    model = matrixModel(modname, pn, dictMat["pd_poolInfo"], dictMat["arr_initX"], 
-            dictMat["arr_B0"], dictMat["mat_A"], dictMat["mat_K"], dictMat["mat_Tr"], depth)
-    scal_env = pd.read_csv("input/matrix_models_input/scalar/"+modname+".csv").iloc[:,1:].to_numpy()
-    Bscal    = pd.read_csv("input/matrix_models_input/Bscalar/"+modname+".csv").iloc[:,1:].to_numpy()
-    # print("gpp:", gpp)
-    # print("scal_env:", scal_env)
-    # print("bscal: ", Bscal)
-    Xss = model.runSpinup(gpp[:len4sasu], scal_env[:len4sasu], Bscal[:len4sasu])
-    # print(Xss)
-    mat_A4Sum = model.mat_A
-    if modname == "ORCHIDEE": 
-        for h in range(1,5):
-            mat_A4Sum[:,h] = mat_A4Sum[:,h]*depth
-    dictXsets, cflux, X_out, X_out_new = model.runSimu(gpp, scal_env, Bscal, dictOrd, initXpools=Xss, mat_A4Sum = None)
-    # print(dictXsets)
-    # print(dictMat["pd_poolInfo"]["Pool_name"])
-    pd.DataFrame(X_out, columns=list(dictMat["pd_poolInfo"]["Pool_name"].to_numpy())).to_excel("output/matrix_models_output/simuOutputs/out_"+modname+".xlsx")
-    pd.DataFrame(X_out_new, columns=list(dictMat["pd_poolInfo"]["Pool_name"].values)).to_excel("output/matrix_models_output/simuOutputs/out_new_"+modname+".xlsx")
-    pd.DataFrame(dictXsets).to_excel("output/matrix_models_output/simuOutputs/cpools_"+modname+".xlsx")
-    cflux.to_excel("output/matrix_models_output/simuOutputs/cflux_"+modname+".xlsx")
-    # print(len(Xss))
-    
+def run(path_gpp, path_scal, resultDir):
+    Models     = ["TEM","DALEC","TECO","FBDC","CASA","CENTURY","CLM","ORCHIDEE"]
+    Timestep   = ["month","day","day","day","month","month","day","day"]
+    Pooln      = [2, 6, 8, 13, 14, 15, 71, 101]
+    dictTime   = {"date_start": 2011, "date_end": 2014, "freq": "D"}
+    # path_gpp   = gppPath #"output/matrix_models_output/gpp/"
+    path_depth  = os.path.join(curPath,"depth/depth.xlsx")
+    path_matrix = os.path.join(curPath,"matrix/matrix.xlsx")
+    # file for ecopad results
+    file4Ecopad = resultDir+"/output/results_ecopad.xlsx"
+    pd.DataFrame().to_excel(file4Ecopad)  # save the excel file, default create the Sheet1
+    writer = pd.ExcelWriter(file4Ecopad, mode="a", engine="openpyxl")
+    wb = writer.book
+    if "Sheet1" in wb.sheetnames: wb.remove(wb["Sheet1"])
+    for imod, modname in enumerate(Models):
+        pn = Pooln[imod]
+        print(modname, "-pools-", pn)
+        pd_matrix        = pd.read_excel(path_matrix,sheet_name = modname)  # Pool_order, Pool3, Pool_major, 
+        dictMat, dictOrd = pdMatrix2dict(pd_matrix, pn)
+        # read depth file:
+        depth = pd.read_excel(path_depth, sheet_name = modname).to_numpy()[0,:pn]
+        gpp   = pd.read_csv(os.path.join(path_gpp,"gpp_day.csv")).iloc[:,1:].to_numpy()
+        gpp_m = pd.read_csv(os.path.join(path_gpp,"gpp_month.csv")).iloc[:,1:].to_numpy()
+        df_dateTime = pd.read_csv(os.path.join(path_gpp,"gpp_day.csv")).loc[:,"Date"]
+        df_dateTime_m = pd.read_csv(os.path.join(path_gpp,"gpp_month.csv")).loc[:,"Date"]
+        len4sasu = 365
+        if Timestep[imod] == "month": dictTime["freq"] = "M"; gpp =  gpp_m; len4sasu=12; df_dateTime=df_dateTime_m
+        model    = matrixModel(modname, pn, dictMat["pd_poolInfo"], dictMat["arr_initX"], 
+                   dictMat["arr_B0"], dictMat["mat_A"], dictMat["mat_K"], dictMat["mat_Tr"], depth)
+        scal_env = pd.read_csv(os.path.join(path_scal,"scalar/")  + modname + ".csv").iloc[:,1:].to_numpy()
+        Bscal    = pd.read_csv(os.path.join(path_scal,"Bscalar/") + modname + ".csv").iloc[:,1:].to_numpy()
+        Xss      = model.runSpinup(gpp[:len4sasu], scal_env[:len4sasu], Bscal[:len4sasu])
+        # print(Xss)
+        mat_A4Sum = model.mat_A
+        if modname == "ORCHIDEE": 
+            for h in range(1,5):
+                mat_A4Sum[:,h] = mat_A4Sum[:,h]*depth
+        dictXsets, cflux, X_out, X_out_new = model.runSimu(gpp, scal_env, Bscal, dictOrd, initXpools=Xss, mat_A4Sum = None)
+        # print(dictXsets)
+        # print(dictMat["pd_poolInfo"]["Pool_name"])
+        df_x_out = pd.DataFrame()
+        print("here ..")
+        df_x_out["Date"]=pd.to_datetime(df_dateTime)
+        columns=list(dictMat["pd_poolInfo"]["Pool_name"].to_numpy())
+        df_x_out.loc[:,columns] = X_out
+        df_x_out.set_index("Date", inplace=True)
+        df_x_out.to_excel(resultDir+"/output/out_"+modname+".xlsx")
+        # pd.DataFrame(X_out,     columns=list(dictMat["pd_poolInfo"]["Pool_name"].to_numpy())).to_excel(resultDir+"/output/out_"+modname+".xlsx")
+        df_x_out_new = pd.DataFrame()
+        df_x_out_new["Date"] = pd.to_datetime(df_dateTime)
+        columns=list(dictMat["pd_poolInfo"]["Pool_name"].values)
+        df_x_out_new.loc[:,columns] = X_out_new
+        df_x_out_new.set_index("Date", inplace=True)
+        # df_x_out_new = pd.DataFrame(X_out_new, columns=list(dictMat["pd_poolInfo"]["Pool_name"].values))
+        df_x_out_new.to_excel(resultDir+"/output/out_new_"+modname+".xlsx")
+        pd.DataFrame(dictXsets).to_excel(resultDir+"/output/cpools_"+modname+".xlsx")
+        df_cflux = cflux.copy()
+        df_cflux.loc[:,"Date"] = pd.to_datetime(df_dateTime)
+        df_cflux.set_index("Date", inplace=True)
+        df_cflux.to_excel(resultDir+"/output/cflux_"+modname+".xlsx")
+        # ----------------------------------------------------------------------------------------------------------------------------------------
+        # get ouputs for EcoPad: npp, nee, er, ra, rh, cStorage
+        # npp = GPP-Ra; Rh = Rlit+Rsol; nee = Ra+Rlit+Rsol-GPP; er=Ra+Rlit+Rsol; cStorage=
+        df_res = pd.DataFrame()
+        df_res["npp"] = cflux.loc[:,"GPP"].to_numpy() - cflux.loc[:,"Ra"].to_numpy()
+        df_res["nee"] = cflux[["Ra","Rlit","Rsol"]].sum(axis=1).to_numpy() - cflux.loc[:,"GPP"].to_numpy()
+        df_res["er"]  = cflux[["Ra","Rlit","Rsol"]].sum(axis=1)
+        df_res["ra"]  = cflux["Ra"]
+        df_res["rh"]  = cflux[["Rlit", "Rsol"]].sum(axis=1)
+        if Timestep[imod] == "month": df_res = df_res/30 
+        df_res["cStorage"] = pd.DataFrame(X_out_new, columns=list(dictMat["pd_poolInfo"]["Pool_name"].values)).sum(axis=1)
+        if Timestep[imod] == "month":
+            df_res["Date"] = pd.to_datetime(df_dateTime).dt.to_period('m')
+        else:
+            df_res["Date"] = pd.to_datetime(df_dateTime)
+        df_res.set_index("Date",inplace=True)
+        
+        if Timestep[imod] == "month":
+            df_res = df_res.resample('d').ffill().to_timestamp()
+        if modname in wb.sheetnames: wb.remove(wb[modname])
+        df_res.to_excel(writer, sheet_name=modname)
+    writer.save()
+    writer.close()
+    return file4Ecopad

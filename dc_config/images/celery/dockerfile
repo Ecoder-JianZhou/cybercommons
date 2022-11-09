@@ -25,6 +25,10 @@ WORKDIR /app
 RUN useradd -r -U -m celery \
   && chown celery:celery -R /app
 
+WORKDIR /webData
+RUN chmod g+w+x -R /webData
+
+WORKDIR /app
 USER celery
 
 CMD ["/app/startCeleryWorker"]

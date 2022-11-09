@@ -49,6 +49,7 @@
     <ul id='myTab_out' class="nav nav-tabs  " role="tablist">
         <li role="presentation" class="active"><a href="#homedesc" aria-controls="homedesc" role="tab" data-toggle="tab">EcoPAD</a></li>
         <li role="presentation"><a id="image_link" href="#forecast_images" aria-controls="imageflow" role="tab" data-toggle="tab">SPRUCE Forecasting</a></li>
+        <li role="presentation"><a id="spruce_mip_link" href="#spruce-mip_images" aria-controls="imageflow" role="tab" data-toggle="tab">SPRUCE-MIP</a></li>
         <!-- change by Jian to stop the custom workflow -->
         <li role="presentation"><a id="workflow_link" href="#workflow" aria-controls="workflow" role="tab" data-toggle="tab">Custom Workflow</a></li>  
 
@@ -67,7 +68,9 @@
             <div >
               <select id="model_name" >
                 <option style='display: none'></option>
-                <option value="teco_spruce_v2">teco_spruce_v2</option>
+                <option value="TECO_SPRUCE">teco_spruce_v2</option>
+                <option value="matrix_models">matrix_models</option>
+                <option value="all">test_auto</option>
               </select>			  
             </div> 
            </div>
@@ -112,7 +115,7 @@
 	        		 	  <span class 'help-block'> a positive number </span>
 	        		  </div>		 -->
                 
-	        		  <button type="submit" class="btn btn-default">Test to run TECO (send to API) </button>
+	        		  <button type="submit" class="btn btn-default">Test (send to API) </button>
           		  <p id="status" />
               </form>
 	        	</div>
@@ -137,19 +140,27 @@
           <div >
             <div>
               <label id="forecast_time">Lastest forecasting time:</label>
+              <img src="../data/time.png" width="180" />
             </div>
             <label for="forecast_var">Variable:</label>
             <div >
               <select id="forecast_var" onchange="showForecastResults()">
                 <!-- <option style='display: none'></option> -->
                 <option value="gpp">GPP</option>
+                <option value="npp">NPP</option>
+                <option value="nee">NEE</option>
                 <option value="er">ER</option>
+                <option value="ra">Ra</option>
+                <option value="rh">Rh</option>
+                <option value="cStorage">Ecosystem_C_storage</option>
               </select>			  
             </div> 
            </div>
-          <div class="col-md-6" style="padding-left:0px;">
+          
             <label for="forecast_select">Experiment:</label>
-            <select id="forecast_select" class="form-control input-sm " onchange="showForecastResults()">
+            <div  style="padding-left:0px;">
+            <!-- <select id="forecast_select" class="form-control input-sm " onchange="showForecastResults()"> -->
+              <select id="forecast_select" onchange="showForecastResults()">
               <!-- <option selected="selected" value="EM1_FORECAST_380_0">Ambient [CO2]: 380, Warming treatment: +0 &#8451;</option> -->
               <!-- <option style='display: none'></option> -->
               <option value="EM1_FORECAST_380_0">Ambient [CO2]: 380, Warming treatment: +0 &#8451;</option>
@@ -165,11 +176,66 @@
             </select>			  
           </div> 
 				<!-- <div id="two_images" style="clear:both;">  -->
-          <div class="col-md-6" id='plotDiv1'>
+          <div  id='plotDiv1'>
             <!-- Plotly chart will be drawn inside this DIV -->
           </div>
         <!-- </div> -->
         </div>
+
+        <!-- add by Jian: to show the results of SPRUCE-MIP -->
+        <div role="tabpanel" class="tab-pane fade in " id="spruce-mip_images">
+          <div style="width:75%" align="left"> 
+            <h2>Simulations for SPRUCE-MIP</h2>
+            <p> 11 sets of forcing data from different experiments at SPRUCE, a control experiment and 5 warming experiments with 2 different elevated CO2. One process-based model (TECO-SPRUCE) and 8 matrix models (TEM, DALEC, TECO, FBDC, CASA, CENTURY, CLM, ORCHIDEE) run based on these forcing data. </p>
+            <hr style="height:1px;border:none;border-top:1px solid #555555;" />
+            <div>
+              <h4>Temperature: </h4>
+              <img src="../data/SPRUCE_MIP/tem.png"  width="1000"/>
+            </div>
+            <hr style="height:1px;border:none;border-top:1px solid #555555;" />
+            <div>
+              <h4>GPP (TECO-SPRUCE): </h4>
+              <img src="../data/SPRUCE_MIP/gpp.png"  width="1000"/>
+            </div>
+            <hr style="height:1px;border:none;border-top:1px solid #555555;" />
+            <label for="sprucemip_var">Variable:</label>
+            <div >
+              <select id="sprucemip_var" onchange="showSPRUCEMIPresults()">
+                <!-- <option style='display: none'></option> -->
+                <!-- <option value="gpp">GPP</option> -->
+                <option value="npp">NPP</option>
+                <option value="nee">NEE</option>
+                <option value="er">ER</option>
+                <option value="ra">Ra</option>
+                <option value="rh">Rh</option>
+              </select>			  
+            </div> 
+            <label for="sprucemip_select">Experiment:</label>
+            <div  style="padding-left:0px;">
+            <!-- <select id="forecast_select" class="form-control input-sm " onchange="showForecastResults()"> -->
+              <select id="sprucemip_select" onchange="showSPRUCEMIPresults()">
+              <!-- <option selected="selected" value="EM1_FORECAST_380_0">Ambient [CO2]: 380, Warming treatment: +0 &#8451;</option> -->
+              <!-- <option style='display: none'></option> -->
+              <option value="EM1_SIMULATION_AMB_AMB">Ambient [CO2], Warming treatment: Ambient &#8451;</option>
+              <option value="EM1_SIMULATION_380_0">Ambient [CO2]: 380, Warming treatment: +0 &#8451;</option>
+              <option value="EM1_SIMULATION_380_2.25">Ambient [CO2]: 380, Warming treatment: +2.25 &#8451;</option>
+              <option value="EM1_SIMULATION_380_4.5">Ambient [CO2]: 380, Warming treatment: +4.5 &#8451;</option>
+              <option value="EM1_SIMULATION_380_6.75">Ambient [CO2]: 380, Warming treatment: +6.75 &#8451;</option>
+              <option value="EM1_SIMULATION_380_9">Ambient [CO2]: 380, Warming treatment: +9 &#8451;</option>
+              <option value="EM1_SIMULATION_900_0">Elevated [CO2]: 900, Warming treatment: +0 &#8451;</option>
+              <option value="EM1_SIMULATION_900_2.25">Elevated [CO2]: 900, Warming treatment: +2.25 &#8451;</option>
+              <option value="EM1_SIMULATION_900_4.5">Elevated [CO2]: 900, Warming treatment: +4.5 &#8451;</option>
+              <option value="EM1_SIMULATION_900_6.75">Elevated [CO2]: 900, Warming treatment: +6.75 &#8451;</option>
+              <option value="EM1_SIMULATION_900_9">Elevated [CO2]: 900, Warming treatment: +9 &#8451;</option>
+            </select>			  
+          </div> 
+          </div>
+          <div  id='plotDiv2'>
+            <!-- Plotly chart will be drawn inside this DIV -->
+          </div>
+        </div>
+        <!-- Jian: end of showing the results of SPRUCE-MIP -->
+
 
         <div role="tabpanel" class="tab-pane fade" id="workflow">
 <!-- Start inside tab -->
